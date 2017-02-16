@@ -26,7 +26,7 @@ public class GRemote extends PApplet {
 
 // Setup, event loops and state
 
-  boolean DEBUG = true;
+  boolean DEBUG = false;
 
 
 // Global variables
@@ -147,7 +147,7 @@ public void settings(){
 
 // setup
 public void setup() {
-  //size(800,480);
+  size(800,480);
   
   smooth();
   
