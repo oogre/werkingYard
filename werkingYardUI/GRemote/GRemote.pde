@@ -218,7 +218,7 @@ public class GRemote extends PApplet {
     // because only permitted (for current state) elements are available in the UI,
     // we assume that if we received an event, we can handle it without checking state
     // the above is not true for keypresses, where state has to be explicitly checked before handling event
-    if (theEvent.getName().equals("PORT")) {
+      if (theEvent.getName().equals("PORT")) {
       if (port != null) port.stop();
       try { 
         port = new Serial(this, Serial.list()[(int)theEvent.getValue()], baudrate);
@@ -233,6 +233,7 @@ public class GRemote extends PApplet {
       println("port open: " + Serial.list()[(int)theEvent.getValue()]);
       port.bufferUntil('\n');
       port.write("\r\n");
+      println("WRITE OK");
       return;
     }
 
