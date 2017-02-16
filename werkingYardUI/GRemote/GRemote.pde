@@ -184,10 +184,10 @@ public class GRemote extends PApplet {
     setup_console(10, 45, 200, 160);  
     setup_func_buttons(10, 230);
     setup_toggles(10, 260);
-    setup_jog_controls(10, 335, 30); 
+    setup_jog_controls(10, 345, 30); 
     //setup_homing_controls(10,355,70); 
-    setup_arc_controls(10, 355, 35); 
-    setup_setting_controls(10, 375, 5); 
+    //setup_arc_controls(10, 355, 35); 
+    setup_setting_controls(10, 335, 5); 
     setup_jog_buttons(220, 10);
     setup_port_led(10, 10);
     setup_port_selector(30, 10, 170, 130);
@@ -205,7 +205,7 @@ public class GRemote extends PApplet {
     update_jog_controls();
     //update_homing_controls();
     update_port_selector();
-    update_arc_controls();
+    //update_arc_controls();
     update_setting_controls();
     update_textfields(); // manage textfields focus
     update_groups(); // manage groups
@@ -268,7 +268,7 @@ public class GRemote extends PApplet {
       jog_ddl_idx[idx.Z] = i; 
       jog_ddl_frac[idx.Z] = FractionalJog;
     }
-    
+
     if (theEvent.isGroup()) { 
 
       if (theEvent.getGroup().getName()=="GROUP_JOGGING") {
@@ -670,7 +670,7 @@ public class GRemote extends PApplet {
       feed[idx.X] -= feedInc; 
       feed[idx.Y] -= feedInc;
     }
-
+    /*
     if (Jogging_grp.isOpen()) {
       if (key == 'x')
         if (jog_ddl_idx[idx.X] > 0) {
@@ -724,6 +724,7 @@ public class GRemote extends PApplet {
         ((Toggle)cP5.getController("rapid_positioning")).setValue(!RapidPositioning);
       }
     }
+    */
 
     if (key == CODED && keyCode == RIGHT) { 
       ((Button)cP5.getController("X+")).setValue(ControlP5.PRESSED);
@@ -1601,15 +1602,17 @@ public class GRemote extends PApplet {
   }  
 
   public void setup_jog_controls(int x, int y, int y_off) { 
-    ControlGroup g = cP5.addGroup("GROUP_JOGGING", x, y, 200).activateEvent(true);
-    g.setLabel("JOGGING"); 
-    g.close(); 
+    /*ControlGroup g = cP5.addGroup("GROUP_JOGGING", x, y, 200);
+    //g.setLabel("JOGGING"); 
+    g.open(); 
     Jogging_grp = g;
-    g.setBarHeight(20);
-    g.getCaptionLabel().getFont().setSize(10);
-    g.getCaptionLabel().getStyle().setMarginTop(5);
-    x = 0;
-    y = y_off;
+    */
+    //g.setBarHeight(20);
+    //g.getCaptionLabel().getFont().setSize(10);
+    //g.getCaptionLabel().getStyle().setMarginTop(5);
+    
+   // x = 0;
+   // y = y_off;
     /*
   cP5.addTextlabel("set_jog_label", "SET JOG ", x, y+4).setGroup(g);
      
@@ -1624,26 +1627,24 @@ public class GRemote extends PApplet {
      t.captionLabel().style().marginLeft = 18;
      */
 
-    cP5.addTextlabel("jog_z_label", "Z", x+135, y+24).setGroup(g);
-    jogZ_ddl = cP5.addDropdownList("JOG Z", x+15+135, y+35, 50, y+99);
+    cP5.addTextlabel("jog_z_label", "Z", x+135, y);
+    jogZ_ddl = cP5.addDropdownList("JOG Z", x+15+135, y, 50, y+99);
     jogZ_ddl.close();
-    jogZ_ddl.setGroup(g);
+    
     jogZ_ddl.getCaptionLabel().set("1");
     jogZ_ddl.getCaptionLabel().getStyle().setMarginTop(0);
     jogZ_ddl.setBarHeight(14);
 
-    cP5.addTextlabel("jog_y_label", "Y", x+70, y+24).setGroup(g);
-    jogY_ddl = cP5.addDropdownList("JOG Y", x+15+70, y+35, 50, y+84);
+    cP5.addTextlabel("jog_y_label", "Y", x+70, y);
+    jogY_ddl = cP5.addDropdownList("JOG Y", x+15+70, y, 50, y+84);
     jogY_ddl.close();
-    jogY_ddl.setGroup(g);
     jogY_ddl.getCaptionLabel().set("1");
     jogY_ddl.getCaptionLabel().getStyle().setMarginTop(0);
     jogY_ddl.setBarHeight(14);
 
-    cP5.addTextlabel("jog_x_label", "X", x, y+24).setGroup(g);
-    jogX_ddl = cP5.addDropdownList("JOG X", x+15, y+35, 50, y+69);
+    cP5.addTextlabel("jog_x_label", "X", x, y);
+    jogX_ddl = cP5.addDropdownList("JOG X", x+15, y, 50, y+69);
     jogX_ddl.close();
-    jogX_ddl.setGroup(g);
     jogX_ddl.getCaptionLabel().set("1");
     jogX_ddl.getCaptionLabel().getStyle().setMarginTop(0);
     jogX_ddl.setBarHeight(14);
@@ -1671,7 +1672,15 @@ public class GRemote extends PApplet {
   }
 
   public void update_jog_controls() {
-    Jogging_grp.setVisible(PortResponding && (!SendingSequence || SendingSequence && Paused));
+    cP5.getController("JOG Z").setVisible(PortResponding);
+    cP5.getController("JOG Y").setVisible(PortResponding);
+    cP5.getController("JOG X").setVisible(PortResponding);
+    
+    cP5.getController("jog_z_label").setVisible(PortResponding);
+    cP5.getController("jog_y_label").setVisible(PortResponding);
+    cP5.getController("jog_x_label").setVisible(PortResponding);
+    
+    //Jogging_grp.setVisible(PortResponding && (!SendingSequence || SendingSequence && Paused));
     //if ((int)cP5.getController("fractional_jog").getValue() != (FractionalJog? 1:0)) cP5.getController("fractional_jog").setValue((FractionalJog? 1:0));
     //if ((int)cP5.getController("rapid_positioning").getValue() != (RapidPositioning? 1:0)) cP5.getController("rapid_positioning").setValue((RapidPositioning? 1:0));  
     //if (cP5.getController("FEED X").getValue() != feed[idx.X]) cP5.getController("FEED X").setValue(feed[idx.X]);
@@ -2012,39 +2021,39 @@ public class GRemote extends PApplet {
 
   public void open_group(char g) {
     if (g == 'J') {
-      Jogging_grp.open();
+      //Jogging_grp.open();
       //Homing_grp.close();
-      Arcs_grp.close();
+      //Arcs_grp.close();
       Setting_grp.close();
-    } else Jogging_grp.close();
+    }// else //Jogging_grp.close();
     if (g == 'H') {
       //Homing_grp.open();
-      Jogging_grp.close();
-      Arcs_grp.close();
+      //Jogging_grp.close();
+      //Arcs_grp.close();
       Setting_grp.close();
     }// else Homing_grp.close();
     if (g == 'A') {
-      Arcs_grp.open(); 
+      //Arcs_grp.open(); 
       //Homing_grp.close();
-      Jogging_grp.close();
+      //Jogging_grp.close();
       Setting_grp.open();
     } else {
-      Arcs_grp.close();
+      //Arcs_grp.close();
     }
     if (g == 'S') {
       Setting_grp.open(); 
       //Homing_grp.close();
-      Jogging_grp.close();
-      Arcs_grp.close();
+      //Jogging_grp.close();
+      //Arcs_grp.close();
     } else {
       Setting_grp.close();
     }
   }
 
   public void update_groups() {
-    Jogging_grp.setColorLabel(Jogging_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888); // 0xFF08A2CF);
+    //Jogging_grp.setColorLabel(Jogging_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888); // 0xFF08A2CF);
     //Homing_grp.setColorLabel(Homing_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888);
-    Arcs_grp.setColorLabel(Arcs_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888);  
+    //Arcs_grp.setColorLabel(Arcs_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888);  
     Setting_grp.setColorLabel(Setting_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888);
   }
 
