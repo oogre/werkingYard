@@ -231,6 +231,7 @@ public class GRemote extends PApplet {
       PortResponding = false;
       WaitingForResponse = false;
       println("port open: " + Serial.list()[(int)theEvent.getValue()]);
+      println("test");
       port.bufferUntil('\n');
       port.write("\r\n");
       println("WRITE OK");
