@@ -146,7 +146,14 @@ public class GRemote extends PApplet {
     
   }
   boolean sketchFullScreen() {
-    return true;
+    Properties props=System.getProperties(); 
+    String osName = props.getProperty("os.name");
+    String[] settingList;
+    if(osName.indexOf("Mac")>-1) {
+      return false;
+    }else{
+      return true;
+    }
   }
   // setup
   public void setup() {
