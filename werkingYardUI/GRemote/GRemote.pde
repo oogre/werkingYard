@@ -142,12 +142,14 @@ public class GRemote extends PApplet {
 
 
   public void settings() {
-    size(800, 480);
+    
+    fullScreen();
   }
 
   // setup
   public void setup() {
     size(800, 480);
+    noCursor();
 
     smooth();
 
