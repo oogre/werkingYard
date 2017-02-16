@@ -143,9 +143,11 @@ public class GRemote extends PApplet {
 
   public void settings() {
     
-    fullScreen();
+    
   }
-
+  boolean sketchFullScreen() {
+    return true;
+  }
   // setup
   public void setup() {
     size(800, 480);
