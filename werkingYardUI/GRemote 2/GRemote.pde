@@ -146,7 +146,7 @@ public class GRemote extends PApplet {
     
   }
   boolean sketchFullScreen() {
-    return true;
+    return false;
   }
   // setup
   public void setup() {
@@ -185,6 +185,8 @@ public class GRemote extends PApplet {
     setup_func_buttons(10, 230);
     setup_toggles(10, 260);
     setup_jog_controls(10, 345, 30); 
+    //setup_homing_controls(10,355,70); 
+    //setup_arc_controls(10, 355, 35); 
     setup_setting_controls(10, 335, 5); 
     setup_jog_buttons(220, 10);
     setup_port_led(10, 10);
@@ -201,7 +203,9 @@ public class GRemote extends PApplet {
     update_func_buttons(); 
     update_jog_buttons();
     update_jog_controls();
+    //update_homing_controls();
     update_port_selector();
+    //update_arc_controls();
     update_setting_controls();
     update_textfields(); // manage textfields focus
     update_groups(); // manage groups
@@ -231,8 +235,10 @@ public class GRemote extends PApplet {
       PortResponding = false;
       WaitingForResponse = false;
       println("port open: " + Serial.list()[(int)theEvent.getValue()]);
+      println("test");
       port.bufferUntil('\n');
       port.write("\r\n");
+      println("WRITE OK");
       return;
     }
 
@@ -354,16 +360,18 @@ public class GRemote extends PApplet {
       if (theEvent.getController().getName() == "CANCEL") {
         SendingSequence = false;
         Paused = false;
-         
+        println(": send sequence cancelled"); 
         console_println(": send sequence cancelled");
       }
 
       // pause/resume (sending file) button
       if (theEvent.getController().getName() == "PAUSE/RESUME") {
         if (!Paused) {
+          println(": send sequence paused"); 
           console_println(": send sequence paused");
           Paused = true;
         } else {
+          println(": send sequence resumed"); 
           console_println(": send sequence resumed");
           Paused = false;
           send_next_line();
@@ -662,7 +670,62 @@ public class GRemote extends PApplet {
       feed[idx.X] -= feedInc; 
       feed[idx.Y] -= feedInc;
     }
-    
+    /*
+    if (Jogging_grp.isOpen()) {
+      if (key == 'x')
+        if (jog_ddl_idx[idx.X] > 0) {
+          jog_ddl_idx[idx.X] -= 1;
+          jog_ddl_frac[idx.X] = FractionalJog;
+          jog[idx.X] = intCoord(jog_ddl_frac[idx.X] ? jog_frac_value[jog_ddl_idx[idx.X]] : jog_dec_value[jog_ddl_idx[idx.X]]);
+          //        println(jog[idx.X]);
+        }
+      if (key == 'X')
+        if (jog_ddl_idx[idx.X] < min(jog_frac_name.length, jog_dec_name.length)-1) {
+          jog_ddl_idx[idx.X] += 1;
+          jog_ddl_frac[idx.X] = FractionalJog;
+          jog[idx.X] = intCoord(jog_ddl_frac[idx.X] ? jog_frac_value[jog_ddl_idx[idx.X]] : jog_dec_value[jog_ddl_idx[idx.X]]);
+          //        println(jog[idx.X]);
+        }
+
+      if (key == 'y')
+        if (jog_ddl_idx[idx.Y] > 0) {
+          jog_ddl_idx[idx.Y] -= 1;
+          jog_ddl_frac[idx.Y] = FractionalJog;
+          jog[idx.Y] = intCoord(jog_ddl_frac[idx.Y] ? jog_frac_value[jog_ddl_idx[idx.Y]] : jog_dec_value[jog_ddl_idx[idx.Y]]);
+          //        println(jog[idx.Y]);
+        }
+      if (key == 'Y')
+        if (jog_ddl_idx[idx.Y] < min(jog_frac_name.length, jog_dec_name.length)-1) {
+          jog_ddl_idx[idx.Y] += 1;
+          jog_ddl_frac[idx.Y] = FractionalJog;
+          jog[idx.Y] = intCoord(jog_ddl_frac[idx.Y] ? jog_frac_value[jog_ddl_idx[idx.Y]] : jog_dec_value[jog_ddl_idx[idx.Y]]);
+          //        println(jog[idx.Y]);
+        }
+
+      if (key == 'z')
+        if (jog_ddl_idx[idx.Z] > 0) {
+          jog_ddl_idx[idx.Z] -= 1;
+          jog_ddl_frac[idx.Z] = FractionalJog;
+          jog[idx.Z] = intCoord(jog_ddl_frac[idx.Z] ? jog_frac_value[jog_ddl_idx[idx.Z]] : jog_dec_value[jog_ddl_idx[idx.Z]]);
+          //        println(jog[idx.Z]);
+        }
+      if (key == 'Z')
+        if (jog_ddl_idx[idx.Z] < min(jog_frac_name.length, jog_dec_name.length)-1) {
+          jog_ddl_idx[idx.Z] += 1;
+          jog_ddl_frac[idx.Z] = FractionalJog;
+          jog[idx.Z] = intCoord(jog_ddl_frac[idx.Z] ? jog_frac_value[jog_ddl_idx[idx.Z]] : jog_dec_value[jog_ddl_idx[idx.Z]]);
+          //        println(jog[idx.Z]);
+        }
+
+      if (key == 'f' || key == 'F') {
+        ((Toggle)cP5.getController("fractional_jog")).setValue(!FractionalJog);
+      }
+      if (key == 'r' || key == 'R') {
+        ((Toggle)cP5.getController("rapid_positioning")).setValue(!RapidPositioning);
+      }
+    }
+    */
+
     if (key == CODED && keyCode == RIGHT) { 
       ((Button)cP5.getController("X+")).setValue(ControlP5.PRESSED);
     }
@@ -704,6 +767,7 @@ public class GRemote extends PApplet {
     //  if(!SendingSequence) delay(100);
     delay(10); 
     String s = port.readString();
+    println("=> "+s.trim()); 
     console_println("> "+s.trim());
     s = s.trim().toUpperCase();
 
@@ -712,7 +776,7 @@ public class GRemote extends PApplet {
 
     // firmware reset (not all firmware does this though)
     if (s.equals("START")) {
-      console_println("firmware start, sending init sequence");
+      println("firmware start, sending init sequence");
       SendingSequence = false; 
       Paused = false;
       PortWasReset = false; 
@@ -730,6 +794,7 @@ public class GRemote extends PApplet {
       if (SendingSequence && SequenceLastLineSent) { 
         SequenceLastLineSent = false;
         SendingSequence = false;
+        println(": done sending sequence"); 
         console_println(": done sending sequence");
       }
       return;
@@ -738,7 +803,7 @@ public class GRemote extends PApplet {
     // if we received something other than OK or START after port reset, assume port is responding
     // kludgy but should work for firmware that supports 'ok' but not 'start' e.g. Grbl (as of 0.7d)
     if (PortWasReset) {
-      console_println("port reset, sending init sequence");
+      println("port reset, sending init sequence");
       PortWasReset = false; 
       PortResponding = true; 
       init_sequence();
@@ -856,6 +921,7 @@ public class GRemote extends PApplet {
     if (f == null) return;
     gcode_sequence = loadStrings(f);
     if (gcode_sequence == null) {
+      println(": unable to open the file"); 
       console_println(": unable to open the file");
       return;
     }
@@ -960,6 +1026,7 @@ public class GRemote extends PApplet {
     // write string to port and consoles
     try {
       port.write(s + "\r\n");
+      println("<= " + s); 
       console_println("< " + s);
       // set waiting state
       WaitingForResponse = true;
@@ -1011,6 +1078,7 @@ public class GRemote extends PApplet {
     // check if limits are 0
     if (axes == "XY") {
       if (homing_limit[idx.X] == 0 && homing_limit[idx.Y] == 0) { 
+        println(": limit <|>0 homes to min|max"); 
         console_println(": limit <|>0 homes to min|max"); 
         return;
       }
@@ -1018,6 +1086,7 @@ public class GRemote extends PApplet {
       axis_max = 1;
     } else { // if axes == "Z"
       if (homing_limit[idx.Z] == 0) { 
+        println(": limit <|>0 homes to min|max"); 
         console_println(": limit <|>0 homes to min|max"); 
         return;
       }
@@ -1167,7 +1236,6 @@ public class GRemote extends PApplet {
 
   public void console_println(String s) {
     // add to buffer
-    println(s);
     console[next_line] = s;
     if (next_line < console_size-1) next_line++;
     else next_line = 0;
@@ -1641,6 +1709,122 @@ public class GRemote extends PApplet {
     // ***********************************
   }  
 
+  public void setup_homing_controls(int x, int y, int y_off) { 
+    ControlGroup g = cP5.addGroup("GROUP_HOMING", x, y, 200).activateEvent(true); 
+    g.setLabel("HOMING"); 
+    g.close(); 
+    Homing_grp = g;
+    g.setBarHeight(20);
+    g.getCaptionLabel().getStyle().setMarginTop(5);
+    g.getCaptionLabel().getFont().setSize(10);
+    x = 0;
+    y = y_off;
+
+    cP5.addTextlabel("homing_limit_label", "LIMITS@ ", 0, y+4).setGroup(g);
+
+    Numberbox nbr = cP5.addNumberbox("homing_limit_x", homing_limit[idx.X], x+10, y+20, 35, 14);
+    nbr.setLabel("X");  
+    nbr.setMultiplier(0.01f); 
+    nbr.setGroup(g); 
+    nbr.setDecimalPrecision(2);
+    nbr.getCaptionLabel().getStyle().setMargin(-14, 0, 0, -10);
+
+    nbr = cP5.addNumberbox("homing_limit_y", homing_limit[idx.Y], x+10, y+35, 35, 14);
+    nbr.setLabel("Y");  
+    nbr.setMultiplier(0.01f); 
+    nbr.setGroup(g); 
+    nbr.setDecimalPrecision(2);
+    nbr.getCaptionLabel().getStyle().setMargin(-14, 0, 0, -10);
+
+    nbr = cP5.addNumberbox("homing_limit_z", homing_limit[idx.Z], x+10, y+50, 35, 14);
+    nbr.setLabel("Z");  
+    nbr.setMultiplier(0.01f); 
+    nbr.setGroup(g); 
+    nbr.setDecimalPrecision(2);
+    nbr.getCaptionLabel().getStyle().setMargin(-14, 0, 0, -10);
+
+    nbr = cP5.addNumberbox("homing_infinity", homingInfinity, x+55, y+20, 45, 14);
+    nbr.setLabel("INFINITY");  
+    nbr.setMultiplier(1); 
+    nbr.setMin(1); 
+    nbr.setGroup(g);
+    nbr.getCaptionLabel().getStyle().setMargin(0, 0, 0, 0);
+
+    nbr = cP5.addNumberbox("homing_feed", homingFeed, x+105, y+20, 40, 14);
+    nbr.setLabel("FEED");  
+    nbr.setMultiplier(1); 
+    nbr.setMin(1); 
+    nbr.setGroup(g);
+    nbr.getCaptionLabel().getStyle().setMargin(-14, 0, 0, -10);
+
+    Toggle t = cP5.addToggle("homing_set_zero", true, x+55, y, 14, 14);
+    t.setLabel("SET ZERO"); 
+    t.setGroup(g);
+    t.getCaptionLabel().getStyle().setMargin(-14, 0, 0, 18);
+
+    cP5.addButton("HOME XY", 1, x+55, y+50, 45, 14).setGroup(g);
+    cP5.addButton("HOME Z", 1, x+105, y+50, 40, 14).setGroup(g);
+  }
+
+  public void update_homing_controls() { 
+    Homing_grp.setVisible(PortResponding && (!SendingSequence || SendingSequence && Paused));
+    if ((int)cP5.getController("homing_set_zero").getValue() != (HomingSetZero? 1:0)) cP5.getController("homing_set_zero").setValue((HomingSetZero? 1:0));
+    if (cP5.getController("homing_infinity").getValue() != homingInfinity) cP5.getController("homing_infinity").setValue(homingInfinity);
+    if (cP5.getController("homing_feed").getValue() != homingFeed) cP5.getController("homing_feed").setValue(homingFeed);
+  }
+
+  public void setup_arc_controls(int x, int y, int y_off) {
+    ControlGroup g = cP5.addGroup("GROUP_ARCS", x, y, 200).activateEvent(true);
+    g.setLabel("ARCS"); 
+    g.close(); 
+    Arcs_grp = g;
+
+    g.setBarHeight(20);
+    g.getCaptionLabel().getStyle().setMarginTop(5);
+    g.getCaptionLabel().getFont().setSize(10);
+
+    x = 0;
+    y = y_off;
+
+    Textfield tf = cP5.addTextfield("ARC_RADIUS", x+10, y, 50, 20); 
+    tf.setGroup(g); 
+    tf.setLabel("R");
+    tf.getCaptionLabel().getStyle().setMargin(-17, 0, 0, -10);
+
+    //  cP5.addTextlabel("radius_label","R",x,y+7).setGroup(g);
+
+    Toggle t = cP5.addToggle("ARC_CCW", false, x+115, y, 30, 20);
+    t.setGroup(g); 
+    t.setLabel("CCW CW"); 
+    t.setMode(ControlP5.SWITCH);
+    t.getCaptionLabel().getStyle().setMargin(-17, 0, 0, -42);
+
+    tf = cP5.addTextfield("ARC_START", x+33, y+26, 40, 20); 
+    tf.setGroup(g); 
+    tf.setLabel("START@");
+    tf.getCaptionLabel().getStyle().setMargin(-17, 0, 0, -33);
+
+    tf = cP5.addTextfield("ARC_END", x+105, y+26, 40, 20); 
+    tf.setGroup(g); 
+    tf.setLabel("END@");
+    tf.getCaptionLabel().getStyle().setMargin(-17, 0, 0, -25);
+
+
+    ((Textfield)cP5.getController("ARC_RADIUS")).setText(String.valueOf(arc_radius));
+    ((Textfield)cP5.getController("ARC_START")).setText(String.valueOf(arc_start));
+    ((Textfield)cP5.getController("ARC_END")).setText(String.valueOf(arc_end));
+  }
+
+  public void update_arc_controls() {
+    Arcs_grp.setVisible(PortResponding && (!SendingSequence || SendingSequence && Paused));
+    if (UI_ReloadArcTF) {
+      ((Textfield)cP5.getController("ARC_RADIUS")).setText(String.valueOf(arc_radius));
+      ((Textfield)cP5.getController("ARC_START")).setText(String.valueOf(arc_start));
+      ((Textfield)cP5.getController("ARC_END")).setText(String.valueOf(arc_end));
+      UI_ReloadArcTF = false;
+    }
+    if ((int)cP5.getController("ARC_CCW").getValue() != (ArcCCW? 1:0)) cP5.getController("ARC_CCW").setValue((ArcCCW? 1:0));
+  }
   public void setup_setting_controls(int x, int y, int y_off) {
     ControlGroup g = cP5.addGroup("GROUP_SETTING", x, y, 200).activateEvent(true);
     g.setLabel("SETTING"); 
@@ -1779,7 +1963,7 @@ public class GRemote extends PApplet {
 
     Properties props=System.getProperties(); 
     String osName = props.getProperty("os.name");
-    console_println(osName);
+    println(osName);
     String[] settingList;
     if (osName.indexOf("Win")>-1) {
       settingList = loadStrings("setting.ini");
