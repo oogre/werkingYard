@@ -8,6 +8,8 @@ import processing.serial.*;
 import java.util.StringTokenizer; 
 import java.awt.event.KeyEvent; 
 
+import java.util.*;
+import java.util.Map.Entry;
 import java.util.HashMap; 
 import java.util.ArrayList; 
 import java.io.File; 
@@ -26,7 +28,7 @@ public class GRemote extends PApplet {
 
   // Setup, event loops and state
 
-  boolean DEBUG = false;
+  boolean DEBUG = true;
 
 
   // Global variables
@@ -102,35 +104,58 @@ public class GRemote extends PApplet {
   boolean ZeroMode = false;
   boolean MemMode = false;
 
+  String extention = ".wy";
+  String sketchPath, dataPath;
+
   ArrayList<File> knownDisks;
   ArrayList<File> getMountedDisk() {
     File f = new File("/Volumes/");
     return new ArrayList<File>(Arrays.asList(f.listFiles()));
   }
 
+  ArrayList<File> getFiles(String root, String end_with) {
+    File f = new File(root);
+    return getFiles(f, end_with);
+  }
+
+
+  ArrayList<File> getFiles(File root, String end_with) {
+    File [] files = root.listFiles();
+    ArrayList<File> _files = new ArrayList<File>();
+    for(int j = 0 ; j < files.length ; j ++){
+      if(files[j].getName().toLowerCase().endsWith(end_with)){
+        _files.add(files[j]);
+      }    
+    }
+    return _files;
+  }
+
   void update_file_import() {
     ArrayList<File> currentDisks = getMountedDisk();
     ArrayList<File> currentDisksClone = new ArrayList<File>(currentDisks);
     currentDisksClone.removeAll(knownDisks);
-
-
-
     for (int i = 0; i<currentDisksClone.size(); i ++) {
-      println(currentDisksClone.get(i));
-      println(currentDisksClone.get(i).canRead());
-      //File [] files = currentDisksClone.get(i).listFiles();
+      if(i == 0){
+        delay(1000);
+      }
+      console_println(currentDisksClone.get(i) + " : MOUNTED");
+      ArrayList<File> files = getFiles(currentDisksClone.get(i), extention);
 
-      /*
-    for(int j = 0 ; j < files.length ; j ++){
+      for(int j = 0 ; j < files.size() ; j ++){
        try{
-       if(files[j].getName().toLowerCase().endsWith(".cnc")){
-       Files.copy(files[i].toPath(), new File("/Users/ogre/Forks/XY-Plotter-2.0/software/data").toPath());
-       }
-       }catch(IOException error){
-       
-       }
-       }
-       */
+          File newFile = new File(dataPath+"/"+files.get(j).getName());
+          if(!newFile.exists()){
+            Files.copy(files.get(j).toPath(), newFile.toPath());
+            console_println(files.get(j).getName() + " :IMPORTED");
+          }
+        }catch(IOException error){
+          println(error);
+        }
+      }
+      delay(1000);
+      exec(new String[] { "diskutil", "umount", currentDisksClone.get(i).getPath() });
+      delay(1000);
+      console_println(currentDisksClone.get(i) + " : UNMOUNTED");
     }
     knownDisks = currentDisks;
   }
@@ -139,12 +164,9 @@ public class GRemote extends PApplet {
     knownDisks = getMountedDisk();
   }
 
-
-
   public void settings() {
-    
-    
   }
+
   boolean sketchFullScreen() {
     Properties props=System.getProperties(); 
     String osName = props.getProperty("os.name");
@@ -160,15 +182,18 @@ public class GRemote extends PApplet {
     size(800, 480);
     //noCursor();
 
+    sketchPath = args[0] +"/GRemote";
+    dataPath = sketchPath+"/data";
+    
     smooth();
 
     cP5 = new ControlP5(this);
-    cP5.setColorForeground(0xff00aa00);
-    cP5.setColorBackground(0xff006600);
+    cP5.setColorForeground(color(255, 100));
+    cP5.setColorBackground(color(255, 64));
 
     //cP5.setColorLabel(0xffdddddd);
     //cP5.setColorValue(0xff88ff88);
-    cP5.setColorActive(0xff00ff00);
+    cP5.setColorActive(0xffffffff);
 
     position = new int[idx.size()];
     jog = new int[idx.size()];
@@ -187,21 +212,28 @@ public class GRemote extends PApplet {
       feed[i] = 10*250;  // mm/min
       homing_limit[i] = 0;
     }
-    //setup_file_import();
+    setup_func_buttons(220, 215);
+    
+    setup_file_import();
+    setup_file_list(width-10-170, 10, 170, height-20);
     setup_console(10, 45, 200, 160);  
-    setup_func_buttons(10, 230);
-    setup_toggles(10, 260);
-    setup_jog_controls(10, 345, 30); 
-    setup_setting_controls(10, 335, 5); 
+    setup_toggles(10, 240);
+    setup_jog_controls(10, 315, 30); 
+    setup_setting_controls(10, 305, 60); 
     setup_jog_buttons(220, 10);
     setup_port_led(10, 10);
     setup_port_selector(30, 10, 170, 130);
+
+    
   }
 
   // draw loop
   public void draw() { 
     background(0x00000000);  // background
-    //update_file_import();
+    if(frameCount % 30 == 0 ){
+      update_file_import();
+      update_file_list();
+    }
     update_console();
     update_port_led();
     update_toggles(); 
@@ -213,6 +245,7 @@ public class GRemote extends PApplet {
     update_textfields(); // manage textfields focus
     update_groups(); // manage groups
   }
+  File currentSelectedCNCFile;
 
   // cP5 UI events
   public void controlEvent(ControlEvent theEvent) {
@@ -221,6 +254,17 @@ public class GRemote extends PApplet {
     int arc_offset;
     int j[] = new int[idx.size()];
     for (int i=0; i<idx.size(); i++) j[i] = 0;  // clear temp array
+
+    if(theEvent.isFrom("menu")){
+      Map m = ((MenuList)theEvent.getController()).getItem(int(theEvent.getValue()));
+      println("got a menu event from item : "+m);
+
+      currentSelectedCNCFile = (File)m.get("cncFile");
+      Button b = cP5.get(Button.class, "IMG");
+      
+
+      b.setImages((PImage)m.get("jpgFile"), (PImage)m.get("jpgFile"), (PImage)m.get("jpgFile"));
+    }
 
     // because only permitted (for current state) elements are available in the UI,
     // we assume that if we received an event, we can handle it without checking state
@@ -325,7 +369,13 @@ public class GRemote extends PApplet {
 
       // send file button
       if (theEvent.getController().getName() == "FILE") {
-        selectInput("Select GCode file to send", "send_file");
+
+        if(currentSelectedCNCFile != null && currentSelectedCNCFile.exists()){
+          send_file(currentSelectedCNCFile);
+        }else{
+          console_println("NO FILE SELECTED");
+        }
+        //selectInput("Select GCode file to send", "send_file");
         //      String file = selectInput("Select GCode file to send");
         //      if (file == null) return;
         //      send_file(file);
@@ -1123,6 +1173,7 @@ public class GRemote extends PApplet {
     return s;
   }
 
+
   // UI and controlP5 related functions
   //
   // Todo: build update functions for all buttons and toggles, dependent solely on state flags.
@@ -1133,7 +1184,7 @@ public class GRemote extends PApplet {
   String[] console = new String[console_size];
   String[] ord_console = new String[console_size];
   String[] jog_buttons = {"X+", "X-", "Y+", "Y-", "Z+", "Z-"};
-   String[] jog_toggles = {"arc_mode", "xyz_mode", "zero_mode"/*, "mem_mode"*/  };
+  String[] jog_toggles = {"arc_mode", "xyz_mode", "zero_mode"/*, "mem_mode"*/  };
   String[] jog_frac_name = {"1/32", "1/16", "1/8", "1/4", "1/2", "1"};
   Float[] jog_frac_value = {0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f};
   String[] jog_dec_name = {"0.1", "1", "10", "100"};
@@ -1143,6 +1194,71 @@ public class GRemote extends PApplet {
   ControlGroup Jogging_grp, Homing_grp, Arcs_grp, Setting_grp;
   int[] jog_ddl_idx;
   boolean[] jog_ddl_frac;
+
+  ArrayList<File> files;
+  public void setup_file_list(int x1, int y1, int x2, int y2) {
+    
+    files = getFiles(dataPath, extention);
+    
+    MenuList menu = new MenuList( cP5, "menu", x1, y1, x2, y2 );
+  
+    // add some items to our menuList
+    for (int i=0; i<files.size(); i++) {
+      Map<String, Object> tmp = makeItem(files.get(i));
+      if(tmp.size()>0){
+        menu.addItem(tmp);
+      }
+    }
+    menu.hide();
+  }
+
+  Map<String, Object> makeItem(File file) {
+    int i = file.getName().lastIndexOf('.');
+    if (i <= 0) {
+      return new HashMap<String, Object>();
+    }
+
+    Map m = new HashMap<String, Object>();
+
+    ArrayList <File> cncFiles = getFiles(file, ".cnc");
+    ArrayList <File> jpgFiles = getFiles(file, ".jpg");
+
+    if (cncFiles.size() <= 0 || jpgFiles.size() <= 0) {
+      return new HashMap<String, Object>();
+    }
+
+    m.put("headline", file.getName().substring(0, i));
+    m.put("cncFile", cncFiles.get(0));
+    m.put("jpgFile", loadImage(jpgFiles.get(0).getPath()));
+    return m;
+  }
+
+  public void update_file_list() {
+    MenuList menu = cP5.get(MenuList.class, "menu");
+
+    menu.setVisible(PortResponding || DEBUG);
+
+    ArrayList<File> currentFiles = getFiles(dataPath, extention);
+    ArrayList<File> currentFilesClone = new ArrayList<File>(currentFiles);
+    currentFilesClone.removeAll(files);
+    
+    for (int i=0; i<currentFilesClone.size(); i++) {
+      Map<String, Object> tmp = makeItem(
+        currentFilesClone.get(i)
+      );
+      if(tmp.size()>0){
+        menu.addItem(tmp);
+        console_println(currentFilesClone.get(i).getName() + " : LOADED");
+      }
+    }
+
+    files = getFiles(dataPath, extention);
+    
+    if(files.size()>0){
+      menu.setHeight(min(files.size()*100, height-20));
+    }
+  }
+
 
   // console functions
   // setup_console(10, 10, 200, height-50);  
@@ -1194,13 +1310,13 @@ public class GRemote extends PApplet {
   public void update_console() {
     console_ta.setText(join(ord_console, '\n'));
     for (int i=0; i<idx.size(); i++) {
-      ((Textlabel)cP5.getController(idx.strVal[i]+"_POS")).setVisible(PortResponding);
+      ((Textlabel)cP5.getController(idx.strVal[i]+"_POS")).setVisible(PortResponding ||DEBUG );
       ((Textlabel)cP5.getController(idx.strVal[i]+"_POS")).setValue(idx.strVal[i]+floatCoord(position[i]));
     }
     if (port == null || SendingSequence && !Paused) { 
-      cP5.getController("GCODE").setVisible(false);
+      cP5.getController("GCODE").setVisible(false || DEBUG);
     } else { 
-      cP5.getController("GCODE").setVisible(true);
+      cP5.getController("GCODE").setVisible(true || DEBUG);
       if (UI_ClearGCodeTF) {
         ((Textfield)cP5.getController("GCODE")).setText("");
         UI_ClearGCodeTF = false;
@@ -1222,7 +1338,7 @@ public class GRemote extends PApplet {
       .setSize(14, 14);
     t.setLabel("SENDING")
       .setLock(true)
-      .setColorBackground(color(0, 80, 0))
+      .setColorBackground(color(80, 80, 80))
       .setColorActive(color(0, 255, 0))
       .getCaptionLabel().getStyle().setMargin(-14, 0, 0, 18);
 
@@ -1231,7 +1347,7 @@ public class GRemote extends PApplet {
       .setSize(14, 14);
     t.setLabel("PAUSED")
       .setLock(true)
-      .setColorBackground(color(80, 80, 0))
+      .setColorBackground(color(80, 80, 80))
       .setColorActive(color(255, 255, 0))
       .getCaptionLabel().getStyle().setMargin(-14, 0, 0, 18);
 
@@ -1240,7 +1356,7 @@ public class GRemote extends PApplet {
       .setSize(14, 14);
     t.setLabel("WAITING")
       .setLock(true)
-      .setColorBackground(color(80, 0, 0))
+      .setColorBackground(color(80, 80, 80))
       .setColorActive(color(255, 0, 0))
       .getCaptionLabel().getStyle().setMargin(-14, 0, 0, 18);
 
@@ -1262,10 +1378,10 @@ public class GRemote extends PApplet {
 
   public void update_toggles() {
     // set visibility
-    cP5.getController("sending_LED").setVisible(PortResponding);
-    cP5.getController("paused_LED").setVisible(PortResponding);
-    cP5.getController("waiting_LED").setVisible(PortResponding);
-    cP5.getController("absolute_mode").setVisible(PortResponding);
+    cP5.getController("sending_LED").setVisible(PortResponding || DEBUG);
+    cP5.getController("paused_LED").setVisible(PortResponding || DEBUG);
+    cP5.getController("waiting_LED").setVisible(PortResponding || DEBUG);
+    cP5.getController("absolute_mode").setVisible(PortResponding || DEBUG);
     //cP5.getController("inch_mode").setVisible(PortResponding);
 
     // set lock
@@ -1332,37 +1448,44 @@ public class GRemote extends PApplet {
   }
 
   // buttons
-
+  Canvas cc;
   public void setup_func_buttons(int x, int y) {
     Button b = cP5.addButton("FILE")
       .setPosition(x, y)
-      .setSize((int)(190*0.33), 20);
+      .setSize(122, 30);
     b.getCaptionLabel().setSize(10);
     b.getCaptionLabel().getStyle().setMarginLeft(0);
 
     b = cP5.addButton("PAUSE/RESUME")
-      .setPosition(x+(int)(200*0.33), y)
-      .setSize((int)(190*0.33), 20);
+      .setPosition(x+128, y)
+      .setSize(122, 30);
     b.getCaptionLabel().setSize(10);
     b.getCaptionLabel().getStyle().setMarginLeft(0);
 
     b = cP5.addButton("CANCEL")
-      .setPosition(x+(int)(200*0.66), y)
-      .setSize((int)(190*0.33), 20);
+      .setPosition(x+128+128, y)
+      .setSize(122, 30);
     b.getCaptionLabel().setSize(10);
     b.getCaptionLabel().getStyle().setMarginLeft(0);
+
+
+    b = cP5.addButton("IMG")
+      .setPosition(x, y + 40)
+      .setSize(128+128+122 ,  200 );
+      ;
+
   }
 
   public void update_func_buttons() {
-    if (!PortResponding) {
+    if (!PortResponding && !DEBUG ) {
       cP5.getController("FILE").setVisible(false);
       cP5.getController("PAUSE/RESUME").setVisible(false);
       cP5.getController("CANCEL").setVisible(false);
       return;
     }
-    cP5.getController("FILE").setVisible(!SendingSequence);
-    cP5.getController("CANCEL").setVisible(SendingSequence);
-    cP5.getController("PAUSE/RESUME").setVisible(SendingSequence);
+    cP5.getController("FILE").setVisible((!SendingSequence) || DEBUG);
+    cP5.getController("CANCEL").setVisible(SendingSequence || DEBUG);
+    cP5.getController("PAUSE/RESUME").setVisible(SendingSequence || DEBUG);
     if (Paused) cP5.getController("PAUSE/RESUME").setLabel("RESUME");
     else cP5.getController("PAUSE/RESUME").setLabel("PAUSE");
   }
@@ -1497,7 +1620,7 @@ public class GRemote extends PApplet {
 
   public void update_jog_buttons() {
     String s;
-    Boolean Visible = PortResponding && (!SendingSequence || SendingSequence && Paused);
+    Boolean Visible = (PortResponding && (!SendingSequence || SendingSequence && Paused)) || DEBUG;
 
     if ((int)cP5.getController("arc_mode").getValue() != (ArcMode? 1:0)) cP5.getController("arc_mode").setValue((ArcMode? 1:0));
     if ((int)cP5.getController("xyz_mode").getValue() != (XYZMode? 1:0)) cP5.getController("xyz_mode").setValue((XYZMode? 1:0));
@@ -1572,21 +1695,24 @@ public class GRemote extends PApplet {
     
     jogZ_ddl.getCaptionLabel().set("1");
     jogZ_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    jogZ_ddl.setBarHeight(20);
+    jogZ_ddl.setBarHeight(40);
+    jogZ_ddl.setItemHeight(30);
 
     cP5.addTextlabel("jog_y_label", "Y", x+70, y);
     jogY_ddl = cP5.addDropdownList("JOG Y", x+15+70, y, 50, y+84);
     jogY_ddl.close();
     jogY_ddl.getCaptionLabel().set("1");
     jogY_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    jogY_ddl.setBarHeight(20);
+    jogY_ddl.setBarHeight(40);
+    jogY_ddl.setItemHeight(30);
 
     cP5.addTextlabel("jog_x_label", "X", x, y);
     jogX_ddl = cP5.addDropdownList("JOG X", x+15, y, 50, y+69);
     jogX_ddl.close();
     jogX_ddl.getCaptionLabel().set("1");
     jogX_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    jogX_ddl.setBarHeight(20);
+    jogX_ddl.setBarHeight(40);
+    jogX_ddl.setItemHeight(30);
     /*
   Numberbox nbr = cP5.addNumberbox("FEED X", 10, x+95, y+20, 50, 14); nbr.setGroup(g);
      nbr.setLabel("");  nbr.setMin(1); nbr.setMultiplier(1);
@@ -1611,13 +1737,13 @@ public class GRemote extends PApplet {
   }
 
   public void update_jog_controls() {
-    cP5.getController("JOG Z").setVisible(PortResponding);
-    cP5.getController("JOG Y").setVisible(PortResponding);
-    cP5.getController("JOG X").setVisible(PortResponding);
+    cP5.getController("JOG Z").setVisible(PortResponding || DEBUG);
+    cP5.getController("JOG Y").setVisible(PortResponding || DEBUG);
+    cP5.getController("JOG X").setVisible(PortResponding || DEBUG);
     
-    cP5.getController("jog_z_label").setVisible(PortResponding);
-    cP5.getController("jog_y_label").setVisible(PortResponding);
-    cP5.getController("jog_x_label").setVisible(PortResponding);
+    cP5.getController("jog_z_label").setVisible(PortResponding || DEBUG);
+    cP5.getController("jog_y_label").setVisible(PortResponding || DEBUG);
+    cP5.getController("jog_x_label").setVisible(PortResponding || DEBUG);
     
     //Jogging_grp.setVisible(PortResponding && (!SendingSequence || SendingSequence && Paused));
     //if ((int)cP5.getController("fractional_jog").getValue() != (FractionalJog? 1:0)) cP5.getController("fractional_jog").setValue((FractionalJog? 1:0));
@@ -1830,7 +1956,7 @@ public class GRemote extends PApplet {
     }
   }
   public void update_setting_controls() {
-    Setting_grp.setVisible(PortResponding && (!SendingSequence || SendingSequence && Paused));
+    Setting_grp.setVisible((PortResponding && (!SendingSequence || SendingSequence && Paused)|| DEBUG));
   }
   public void update_textfields() {
     if (UI_ClearFocusTF) {
@@ -1879,6 +2005,118 @@ public class GRemote extends PApplet {
     //Arcs_grp.setColorLabel(Arcs_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888);  
     Setting_grp.setColorLabel(Setting_grp.isOpen() ? 0xFFFFFFFF : 0xFF888888);
   }
+
+
+ 
+class MenuList extends Controller<MenuList> {
+
+  float pos, npos;
+  int itemHeight = 100;
+  int scrollerLength = 40;
+  List< Map<String, Object>> items = new ArrayList< Map<String, Object>>();
+  PGraphics menu;
+  boolean updateMenu;
+
+  MenuList(ControlP5 c, String theName, int x, int y , int theWidth, int theHeight) {
+    super( c, theName, x, y, theWidth, theHeight );
+    c.register( this );
+    menu = createGraphics(getWidth(), getHeight() );
+
+    setView(new ControllerView<MenuList>() {
+
+      public void display(PGraphics pg, MenuList t ) {
+        if (updateMenu) {
+          updateMenu();
+        }
+        if (inside() ) {
+          menu.beginDraw();
+          int len = -(itemHeight * items.size()) + getHeight();
+          int ty = int(map(pos, len, 0, getHeight() - scrollerLength - 2, 2 ) );
+          menu.fill(255 );
+          menu.rect(getWidth()-4, ty, 4, scrollerLength );
+          menu.endDraw();
+        }
+        pg.image(menu, 0, 0);
+      }
+    }
+    );
+    updateMenu();
+  }
+
+  /* only update the image buffer when necessary - to save some resources */
+  void updateMenu() {
+    int len = -(itemHeight * items.size()) + getHeight();
+    npos = constrain(npos, len, 0);
+    pos += (npos - pos) * 0.1;
+    menu.beginDraw();
+    menu.noStroke();
+    menu.background(64 );
+    menu.textFont(cp5.getFont().getFont());
+    menu.pushMatrix();
+    menu.translate( 0, pos );
+    menu.pushMatrix();
+
+    int i0 = PApplet.max( 0, int(map(-pos, 0, itemHeight * items.size(), 0, items.size())));
+    int range = ceil((float(getHeight())/float(itemHeight))+1);
+    int i1 = PApplet.min( items.size(), i0 + range );
+
+    menu.translate(0, i0*itemHeight);
+
+    for (int i=i0;i<i1;i++) {
+      Map m = items.get(i);
+      menu.fill(100);
+      menu.rect(0, 0, getWidth(), itemHeight-1 );
+      menu.fill(255);
+      //menu.textFont(f1);
+      menu.text(m.get("headline").toString(), 10, 20 );
+      //menu.textFont(f2);
+      menu.textLeading(12);
+      menu.image((PImage)m.get("jpgFile"), 110, 10, 50, 50 );
+      menu.translate( 0, itemHeight );
+    }
+    menu.popMatrix();
+    menu.popMatrix();
+    menu.endDraw();
+    updateMenu = abs(npos-pos)>0.01 ? true:false;
+  }
+  
+  /* when detecting a click, check if the click happend to the far right, if yes, scroll to that position, 
+   * otherwise do whatever this item of the list is supposed to do.
+   */
+  public void onClick() {
+    if (getPointer().x()>getWidth()-10) {
+      npos= -map(getPointer().y(), 0, getHeight(), 0, items.size()*itemHeight);
+      updateMenu = true;
+    } 
+    else {
+      int len = itemHeight * items.size();
+      int index = int( map( getPointer().y() - pos, 0, len, 0, items.size() ) ) ;
+      setValue(index);
+    }
+  }
+  
+  public void onMove() {
+  }
+
+  public void onDrag() {
+    npos += getPointer().dy() * 2;
+    updateMenu = true;
+  } 
+
+  public void onScroll(int n) {
+    npos += ( n * 4 );
+    updateMenu = true;
+  }
+
+  void addItem(Map<String, Object> m) {
+    items.add(m);
+    updateMenu = true;
+  }
+  
+  Map<String,Object> getItem(int theIndex) {
+    return items.get(theIndex);
+  }
+}
 
   // Conversion, helpers etc
 
