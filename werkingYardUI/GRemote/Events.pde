@@ -122,7 +122,7 @@
       }
 
       // send file button
-      if (theEvent.getController().getName() == "FILE") {
+      if (theEvent.getController().getName() == "START") {
         if(currentSelectedCNCFile != null && currentSelectedCNCFile.exists()){
           send_file(currentSelectedCNCFile);
         }else{
