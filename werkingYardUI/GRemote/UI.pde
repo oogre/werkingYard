@@ -266,7 +266,7 @@
 
   // buttons
   public void setup_func_buttons(int x, int y) {
-    Button b = cP5.addButton("FILE")
+    Button b = cP5.addButton("START")
       .setPosition(x, y)
       .setSize(122, 30);
     b.getCaptionLabel().setSize(10);
@@ -292,16 +292,16 @@
 
   public void update_func_buttons() {
     if (!PortResponding && !DEBUG ) {
-      cP5.getController("FILE").setVisible(false);
+      cP5.getController("START").setVisible(false);
       cP5.getController("PAUSE/RESUME").setVisible(false);
       cP5.getController("CANCEL").setVisible(false);
       cP5.getController("IMG").setVisible(false);
       return;
     }
-    cP5.getController("FILE").setVisible((!SendingSequence) || DEBUG);
+    cP5.getController("START").setVisible((!SendingSequence) || DEBUG);
     cP5.getController("CANCEL").setVisible(SendingSequence || DEBUG);
     cP5.getController("PAUSE/RESUME").setVisible(SendingSequence || DEBUG);
-    cP5.getController("IMG").setVisible(SendingSequence || DEBUG);
+    cP5.getController("IMG").setVisible(true);
     if (Paused) cP5.getController("PAUSE/RESUME").setLabel("RESUME");
     else cP5.getController("PAUSE/RESUME").setLabel("PAUSE");
   }
