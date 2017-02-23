@@ -14,7 +14,8 @@
        try{
           File newFile = new File(dataPath+"/"+files.get(j).getName());
           if(!newFile.exists()){
-            Files.copy(files.get(j).toPath(), newFile.toPath());
+            //Files.copy(files.get(j).toPath(), newFile.toPath());
+            copyFolder(files.get(j), newFile);
             console_println(files.get(j).getName() + " :IMPORTED");
           }
         }catch(IOException error){
@@ -22,13 +23,7 @@
         }
       }
       delay(1000);
-      String[] CMD = PLATEFORM == OSX ? 
-        new String[] { "diskutil", "umount", currentDisksClone.get(i).getPath() } : 
-        (PLATEFORM == LINUX ? 
-          new String[] { "umount", currentDisksClone.get(i).getPath() } : 
-          ""
-        ); 
-      exec(CMD);
+      unmount(currentDisksClone.get(i).getPath().toString());
       delay(1000);
       console_println(currentDisksClone.get(i) + " : UNMOUNTED");
     }

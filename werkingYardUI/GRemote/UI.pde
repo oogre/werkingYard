@@ -27,9 +27,12 @@
 
     files = getFiles(dataPath, extention);
     for(File current : files){
-      Map<String, Object> tmp = makeItem(current);
-      if(tmp.size()>0){
-        menu.addItem(tmp);
+      try {
+        menu.addItem(makeItem(current));
+        console_println(current.getName() + " : LOADED");
+      } catch (Exception e) {
+        console_println(e.getName());
+        deleteDirectory(current);
       }
     }
     menu.hide();
@@ -39,22 +42,20 @@
     MenuList menu = cP5.get(MenuList.class, "menu");
     menu.setVisible(PortResponding || DEBUG);
 
-
     ArrayList<File> currentFiles = getFiles(dataPath, extention);
     ArrayList<File> currentFilesClone = new ArrayList<File>(currentFiles);
     currentFilesClone.removeAll(files);
     
     for(File current : currentFilesClone){
-      Map<String, Object> tmp = makeItem( current );
-      if(tmp.size()>0){
-        menu.addItem(tmp);
+      try {
+        menu.addItem(makeItem(current));
         console_println(current.getName() + " : LOADED");
+      } catch (Exception e) {
+        console_println(e.getName());
+        deleteDirectory(current);
       }
     }
     files = getFiles(dataPath, extention);
-    if(files.size()>0){
-      menu.setHeight(min(files.size()*100, height-20));
-    }
   }
 
 

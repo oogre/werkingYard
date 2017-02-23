@@ -1,7 +1,7 @@
-public Map<String, Object> makeItem(File file) {
+public Map<String, Object> makeItem(File file) throws Exception {
     int i = file.getName().lastIndexOf('.');
     if (i <= 0) {
-      return new HashMap<String, Object>();
+      throw new Exception(file.getName() + " IS NOT '.wy' FILE");
     }
 
     Map m = new HashMap<String, Object>();
@@ -10,7 +10,7 @@ public Map<String, Object> makeItem(File file) {
     ArrayList <File> jpgFiles = getFiles(file, ".jpg");
 
     if (cncFiles.size() <= 0 || jpgFiles.size() <= 0) {
-      return new HashMap<String, Object>();
+      throw new Exception(file.getName() + " DOESN'T CONTAIN '.jpg' AND/OR '.cnc' files");
     }
 
     m.put("headline", file.getName().substring(0, i));
@@ -120,7 +120,11 @@ class MenuList extends Controller<MenuList> {
 
   void addItem(Map<String, Object> m) {
     items.add(m);
+    if(items.size()>0){
+      setHeight(min(items.size()*100, height-20));
+    }
     updateMenu = true;
+
   }
   
   Map<String,Object> getItem(int theIndex) {

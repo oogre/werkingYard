@@ -99,7 +99,24 @@
     return I;
   }
 
-  
+  public void unmount(String diskPath){
+    String [] CMD = new String[] { "" , "", ""};
+    if(PLATEFORM == OSX){
+      CMD[0] = "diskutil";
+      CMD[1] = "umount";
+      CMD[2] = diskPath;
+      exec(CMD);
+      return;
+    }
+    if(PLATEFORM == LINUX){
+      CMD[0] = "umount";
+      CMD[1] = diskPath;
+      CMD[2] = "";
+      exec(CMD);
+      return;
+    }
+    console_println("UNKNOW plateform : unable to unmount");
+  }
   public int getPlateform(){
     Properties props=System.getProperties(); 
     String osName = props.getProperty("os.name");
@@ -136,3 +153,51 @@
     }
     return _files;
   }
+
+  public void copyFolder(File src, File dest) throws IOException{
+
+      if(src.isDirectory()){
+
+        //if directory not exists, create it
+        if(!dest.exists()){
+           dest.mkdir();
+        }
+
+        //list all the directory contents
+        String files[] = src.list();
+
+        for (String file : files) {
+           //construct the src and dest file structure
+           File srcFile = new File(src, file);
+           File destFile = new File(dest, file);
+           //recursive copy
+           copyFolder(srcFile, destFile);
+        }
+
+      }else{
+        //if file, then copy it
+        Files.copy(src.toPath(), dest.toPath());
+      }
+    }
+    public boolean deleteDirectory(File dir) {
+      if(! dir.exists() || !dir.isDirectory())    {
+        return false;
+      }
+
+      String[] files = dir.list();
+      for(int i = 0, len = files.length; i < len; i++)    {
+        File f = new File(dir, files[i]);
+        if(f.isDirectory()) {
+            deleteDirectory(f);
+        }else   {
+            f.delete();
+        }
+      }
+      if(dir.delete()){
+        console_println(dir.getName() + " is deleted!");
+        return true;
+      }else{
+        console_println("Delete operation is failed.");
+        return false;
+      }
+}
