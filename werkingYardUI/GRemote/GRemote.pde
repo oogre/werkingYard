@@ -35,6 +35,7 @@ import java.util.Properties;
   ArrayList<File> knownDisks;
   File currentSelectedCNCFile;
 
+  int PLATEFORM;
   final int UNKNOW = -1;
   final int OSX = 0 ;
   final int WINDOWS = 1 ; 
@@ -118,7 +119,7 @@ import java.util.Properties;
         return false;
       }
       case LINUX : {
-        return false;
+        return true;
       }
     }
     return false;

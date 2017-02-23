@@ -103,22 +103,20 @@
   public int getPlateform(){
     Properties props=System.getProperties(); 
     String osName = props.getProperty("os.name");
-    println(osName);
     if(osName.indexOf("Mac")>-1){
+      PLATEFORM = OSX;
       return OSX;
-    }else{
-
+    }else if(osName.indexOf("Linux")>-1){
+      PLATEFORM = LINUX;
+      return LINUX;
     }
+    PLATEFORM = UNKNOW;
     return UNKNOW;
-    /*if(osName.indexOf("Mac")>-1) {
-      return false;
-    }else{
-      return true;
-    }*/
   }
 
   public ArrayList<File> getMountedDisk() {
-    File f = new File("/Volumes/");
+    String diskPath = PLATEFORM == OSX ? "/Volumes/" : (PLATEFORM == LINUX ? "/media/" : ""); 
+    File f = new File(diskPath);
     return new ArrayList<File>(Arrays.asList(f.listFiles()));
   }
 
