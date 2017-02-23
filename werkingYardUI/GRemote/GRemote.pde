@@ -35,6 +35,11 @@ import java.util.Properties;
   ArrayList<File> knownDisks;
   File currentSelectedCNCFile;
 
+  final int UNKNOW = -1;
+  final int OSX = 0 ;
+  final int WINDOWS = 1 ; 
+  final int LINUX = 2 ; 
+
   ControlP5 cP5;
   Serial port = null;
   int baudrate = 115200;
@@ -108,14 +113,15 @@ import java.util.Properties;
   boolean MemMode = false;
 
   public boolean sketchFullScreen() {
-    Properties props=System.getProperties(); 
-    String osName = props.getProperty("os.name");
-    //String[] settingList;
-    if(osName.indexOf("Mac")>-1) {
-      return false;
-    }else{
-      return true;
+    switch(getPlateform()){
+      case OSX : {
+        return false;
+      }
+      case LINUX : {
+        return false;
+      }
     }
+    return false;
   }
 
   public void settings() {
