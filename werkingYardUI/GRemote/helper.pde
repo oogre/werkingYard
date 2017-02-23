@@ -100,7 +100,7 @@
   }
 
   
-  public void getPlateform(){
+  public int getPlateform(){
     Properties props=System.getProperties(); 
     String osName = props.getProperty("os.name");
     println(osName);
