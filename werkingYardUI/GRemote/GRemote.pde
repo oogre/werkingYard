@@ -29,7 +29,7 @@ import java.util.Properties;
   // Setup, event loops and state
 
   // Global variables
-  boolean DEBUG = false;
+  boolean DEBUG = true;
   String extention = ".wy";
   String sketchPath, dataPath;
   ArrayList<File> knownDisks;

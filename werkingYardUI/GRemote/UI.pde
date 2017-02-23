@@ -31,7 +31,7 @@
         menu.addItem(makeItem(current));
         console_println(current.getName() + " : LOADED");
       } catch (Exception e) {
-        console_println(e.getName());
+        console_println(e.getMessage());
         deleteDirectory(current);
       }
     }
@@ -51,7 +51,7 @@
         menu.addItem(makeItem(current));
         console_println(current.getName() + " : LOADED");
       } catch (Exception e) {
-        console_println(e.getName());
+        console_println(e.getMessage());
         deleteDirectory(current);
       }
     }
@@ -295,11 +295,13 @@
       cP5.getController("FILE").setVisible(false);
       cP5.getController("PAUSE/RESUME").setVisible(false);
       cP5.getController("CANCEL").setVisible(false);
+      cP5.getController("IMG").setVisible(false);
       return;
     }
     cP5.getController("FILE").setVisible((!SendingSequence) || DEBUG);
     cP5.getController("CANCEL").setVisible(SendingSequence || DEBUG);
     cP5.getController("PAUSE/RESUME").setVisible(SendingSequence || DEBUG);
+    cP5.getController("IMG").setVisible(SendingSequence || DEBUG);
     if (Paused) cP5.getController("PAUSE/RESUME").setLabel("RESUME");
     else cP5.getController("PAUSE/RESUME").setLabel("PAUSE");
   }
