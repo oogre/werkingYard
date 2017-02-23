@@ -22,7 +22,13 @@
         }
       }
       delay(1000);
-      exec(new String[] { "diskutil", "umount", currentDisksClone.get(i).getPath() });
+      String[] CMD = PLATEFORM == OSX ? 
+        new String[] { "diskutil", "umount", currentDisksClone.get(i).getPath() } : 
+        (PLATEFORM == LINUX ? 
+          new String[] { "umount", currentDisksClone.get(i).getPath() } : 
+          ""
+        ); 
+      exec(CMD);
       delay(1000);
       console_println(currentDisksClone.get(i) + " : UNMOUNTED");
     }
