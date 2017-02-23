@@ -133,7 +133,7 @@
   }
 
   public ArrayList<File> getMountedDisk() {
-    String diskPath = PLATEFORM == OSX ? "/Volumes/" : (PLATEFORM == LINUX ? "/media/" : ""); 
+    String diskPath = PLATEFORM == OSX ? "/Volumes/" : (PLATEFORM == LINUX ? "/media/pi/" : ""); 
     File f = new File(diskPath);
     return new ArrayList<File>(Arrays.asList(f.listFiles()));
   }
