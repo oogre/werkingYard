@@ -120,6 +120,7 @@
   public int getPlateform(){
     Properties props=System.getProperties(); 
     String osName = props.getProperty("os.name");
+    console_println(osName);
     if(osName.indexOf("Mac")>-1){
       PLATEFORM = OSX;
       return OSX;

@@ -29,7 +29,7 @@ import java.util.Properties;
   // Setup, event loops and state
 
   // Global variables
-  boolean DEBUG = false;
+  boolean DEBUG = true;
   String extention = ".wy";
   String sketchPath, dataPath;
   ArrayList<File> knownDisks;
@@ -79,9 +79,9 @@ import java.util.Properties;
   int z_step_pin = 5;
   int z_min_pin = 14;
   int z_max_pin = 15;
-  float x_steps_per_mm = 800.0f;
-  float y_steps_per_mm = 800.0f;
-  float z_steps_per_mm = 800.0f;
+  float x_steps_per_mm = 40.0f;
+  float y_steps_per_mm = 40.0f;
+  float z_steps_per_mm = 40.0f;
 
   int i;
   float f;

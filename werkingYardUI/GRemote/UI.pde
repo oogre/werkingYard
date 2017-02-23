@@ -677,15 +677,9 @@
     b.getCaptionLabel().getStyle().setMarginLeft(b.getCaptionLabel().getStyle().marginLeft-6);
     b.setGroup(g);
 
-    Properties props=System.getProperties(); 
-    String osName = props.getProperty("os.name");
-    console_println(osName);
-    String[] settingList;
-    if (osName.indexOf("Win")>-1) {
-      settingList = loadStrings("setting.ini");
-    } else {
-      settingList = loadStrings("setting.ini");
-    }
+    
+      String[] settingList = loadStrings(sketchPath+"/setting.ini");
+    
     try {
 
       ((Textfield)cP5.getController("X_DIR_PIN")).setText(settingList[1]);

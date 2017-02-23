@@ -152,13 +152,9 @@
           ((Textfield)cP5.getController("X_PER_MM")).getText(), 
           ((Textfield)cP5.getController("Y_PER_MM")).getText(), 
           ((Textfield)cP5.getController("X_PER_MM")).getText()};
-        Properties props=System.getProperties(); 
-        String osName = props.getProperty("os.name"); 
-        if (osName.indexOf("Win")>-1) {
-          saveStrings("setting.ini", settingData);
-        } else {
-          saveStrings("setting.ini", settingData);
-        }
+        
+        saveStrings(sketchPath+"/setting.ini", settingData);
+        
         init_sequence();
         return;
       }
