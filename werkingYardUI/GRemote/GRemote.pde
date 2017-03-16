@@ -180,9 +180,6 @@ import java.util.Properties;
   // draw loop
   public void draw() { 
     background(0);
-    if(mouseX != width || mouseY != height){
-      moveCursor();
-    }
     if(frameCount % 30 == 0 ){
       update_file_import();
       update_file_list();
