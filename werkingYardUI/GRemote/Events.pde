@@ -1,12 +1,11 @@
 // cP5 UI events
- public void moveCursor(){
-	try {
-                 // Move the cursor
-                Robot robot = new Robot();
-                robot.mouseMove(width, height);
-        } catch (AWTException e) {
-        }
-}
+  public void moveCursor(){
+	 try {
+     // Move the cursor
+     Robot robot = new Robot();
+     robot.mouseMove(width, height);
+    } catch (AWTException e) {}
+  }
 
 
   public void controlEvent(ControlEvent theEvent) {
@@ -18,13 +17,13 @@
       j[i] = 0;  // clear temp array
 
     if(theEvent.isFrom("menu")){
+      moveCursor();
       Map m = ((MenuList)theEvent.getController()).getItem(int(theEvent.getValue()));
       currentSelectedCNCFile = (File)m.get("cncFile");
       Button b = cP5.get(Button.class, "IMG");
       PImage img = (PImage)m.get("jpgFile");
       img.resize(b.getWidth(), 0);
       b.setImages(img, img, img);
-	moveCursor();
       return ;
     }
 
@@ -32,10 +31,10 @@
     // we assume that if we received an event, we can handle it without checking state
     // the above is not true for keypresses, where state has to be explicitly checked before handling event
     if (theEvent.getName().equals("PORT")) {
+      moveCursor();
       if (port != null) port.stop();
       try { 
         port = new Serial(this, Serial.list()[(int)theEvent.getValue()], baudrate);
-	moveCursor();
       }
       catch (Exception e) {
         console_println(": can't open selected port!");
@@ -53,73 +52,68 @@
 
     // jog setting selected
     if (theEvent.getName()=="JOG X") {
+      moveCursor();
       i = (int)theEvent.getValue();
       jog[idx.X] = intCoord(FractionalJog ? jog_frac_value[i] : jog_dec_value[i]);
       //      println(jog[idx.X]);
       // store current jog dropdown values - workaround to enable inc/dec of jog values with keyboard shortcut (dropdownlist doesn't seem to have .setValue)
       jog_ddl_idx[idx.X] = i; 
       jog_ddl_frac[idx.X] = FractionalJog;
-	moveCursor();
       return;
     }
     if (theEvent.getName()=="JOG Y") {
+      moveCursor();
       i = (int)theEvent.getValue();
       jog[idx.Y] = intCoord(FractionalJog ? jog_frac_value[i] : jog_dec_value[i]);
       //      println(jog[idx.Y]);
       // store current jog dropdown values - workaround to enable inc/dec of jog values with keyboard shortcut (dropdownlist doesn't seem to have .setValue)
       jog_ddl_idx[idx.Y] = i; 
       jog_ddl_frac[idx.Y] = FractionalJog;
-	moveCursor();
       return;
     }
     if (theEvent.getName()=="JOG Z") {
+      moveCursor();
       i = (int)theEvent.getValue();
       jog[idx.Z] = intCoord(FractionalJog ? jog_frac_value[i] : jog_dec_value[i]);
       //      println(jog[idx.Z]);
       // store current jog dropdown values - workaround to enable inc/dec of jog values with keyboard shortcut (dropdownlist doesn't seem to have .setValue)
       jog_ddl_idx[idx.Z] = i; 
       jog_ddl_frac[idx.Z] = FractionalJog;
-	moveCursor();
       return;
     }
 
     if (theEvent.isGroup()) { 
-
+      moveCursor();
       if (theEvent.getGroup().getName()=="GROUP_JOGGING") {
         if (theEvent.getGroup().isOpen()) {
           open_group('J');
-	moveCursor();
         }
       }
       if (theEvent.getGroup().getName()=="GROUP_ARCS") {
         if (theEvent.getGroup().isOpen()) {
           open_group('A');
-	moveCursor();
         }
       }
       if (theEvent.getGroup().getName()=="GROUP_HOMING") {
         if (theEvent.getGroup().isOpen()) {
           open_group('H');
-	moveCursor();
         }
       }
       if (theEvent.getGroup().getName()=="GROUP_SETTING") {
         if (theEvent.getGroup().isOpen()) {
           open_group('S');
-  	moveCursor();
         }
       }
       // baud rate selected
       if (theEvent.getGroup().getName()=="BAUD") { 
         baudrate = (int)theEvent.getGroup().getValue(); 
         println("baud="+baudrate); 
-	moveCursor();
       }
       return;
     }
 
     if (theEvent.isController()) { 
-
+      moveCursor();
       //    print("control event from controller: "+theEvent.getController().getName());
       //    println(", value : "+theEvent.getController().getValue());
 
@@ -133,14 +127,12 @@
       if (theEvent.getController().getName() == "absolute_mode") {
         s = ((int)theEvent.getController().getValue() == 1) ? "G90" : "G91";
         HaveStringToSend = true;
-	moveCursor();
       }
 
       // inch mode toggle
       if (theEvent.getController().getName() == "inch_mode") {
         s = ((int)theEvent.getController().getValue() == 1) ? "G20" : "G21";
         HaveStringToSend = true;
-	moveCursor();
       }
 
       // send file button
@@ -154,7 +146,6 @@
         //      String file = selectInput("Select GCode file to send");
         //      if (file == null) return;
         //      send_file(file);
-	moveCursor();
         return;
       }
       if (theEvent.getController().getName() == "SAVE") {
@@ -177,7 +168,6 @@
           ((Textfield)cP5.getController("X_PER_MM")).getText()};
         
         saveStrings(sketchPath+"/setting.ini", settingData);
-        moveCursor();
         init_sequence();
         return;
       }
@@ -187,7 +177,6 @@
         Paused = false;
          
         console_println(": send sequence cancelled");
-	moveCursor();
         return;
       }
 
@@ -201,7 +190,6 @@
           Paused = false;
           send_next_line();
         }
-	moveCursor();
         return;
       }
 
@@ -224,15 +212,13 @@
 
       if (theEvent.getController().getName() == "FEED X") { 
         feed[idx.X] = theEvent.getController().getValue();
-	moveCursor();
       }
       if (theEvent.getController().getName() == "FEED Y") { 
         feed[idx.Y] = theEvent.getController().getValue();
-	moveCursor();
+
       }
       if (theEvent.getController().getName() == "FEED Z") { 
         feed[idx.Z] = theEvent.getController().getValue();
-	moveCursor();
       }
 
       if (theEvent.getController().getName() == "arc_mode") {
@@ -260,7 +246,6 @@
           XYZMode = false;
           UI_ClearGCodeTF = true;
         }
-	moveCursor();
       }
 
       if (theEvent.getController().getName() == "zero_mode") {
@@ -271,7 +256,6 @@
           ZeroMode = false;
           UI_ClearGCodeTF = true;
         }
-	moveCursor();
       }
       /*
     if(theEvent.getController().getName() == "mem_mode") {
@@ -290,13 +274,11 @@
       if (theEvent.getController().getName() == "homing_set_zero") {
         if ((int)theEvent.getController().getValue() == 1) HomingSetZero = true;
         else HomingSetZero = false;
-	moveCursor();
       }
       //    println("raw: "+homing_limit[idx.X] + ", ceil: "+ceil(100*homing_limit[idx.X]) + ", floor: "+floor(100*homing_limit[idx.X]) );
       if (theEvent.getController().getName() == "homing_limit_x") homing_limit[idx.X] = theEvent.getController().getValue();
       if (theEvent.getController().getName() == "homing_limit_y") homing_limit[idx.Y] = theEvent.getController().getValue();
       if (theEvent.getController().getName() == "homing_limit_z") homing_limit[idx.Z] = theEvent.getController().getValue();
-	moveCursor();
       // fix for values returned by controller - they often have many decimals (accumulated errors from float/double additions/subtractions?)
       for (i = 0; i<idx.size(); i++) homing_limit[i] = (homing_limit[i]>=0)? floor(homing_limit[i]*100)/100.0f : ceil(homing_limit[i]*100)/100.0f;
       if (theEvent.getController().getName() == "homing_infinity") homingInfinity = theEvent.getController().getValue();
@@ -363,7 +345,6 @@
           MemMode = false; 
           UI_ClearGCodeTF = true;
         }
-	moveCursor();
       }
       if (theEvent.getController().getName() == "X-") { 
         j[idx.X] = -jog[idx.X];
@@ -385,7 +366,6 @@
           HaveStringToSend = true;
         }
         //      if (ZeroMode) { ZeroMode = false; UI_ClearGCodeTF = true; }
-	moveCursor();
       }
       if (theEvent.getController().getName() == "Y+") { 
         j[idx.Y] = jog[idx.Y];
@@ -413,7 +393,6 @@
           MemMode = false; 
           UI_ClearGCodeTF = true;
         }
-	moveCursor();
       }
       if (theEvent.getController().getName() == "Y-") { 
         j[idx.Y] = -jog[idx.Y];
@@ -435,7 +414,6 @@
           HaveStringToSend = true;
         }
         //      if (ZeroMode) { ZeroMode = false; UI_ClearGCodeTF = true; }
-	moveCursor();
       }
       if (theEvent.getController().getName() == "Z+") { 
         j[idx.Z] = jog[idx.Z];
@@ -460,7 +438,6 @@
           MemMode = false; 
           UI_ClearGCodeTF = true;
         }
-	moveCursor();
       }
       if (theEvent.getController().getName() == "Z-") { 
         j[idx.Z] = -jog[idx.Z];
@@ -476,7 +453,6 @@
         s = ZeroMode ? "G92 Z0" : jog_string(j, G_AbsoluteMode, RenderZero);
         HaveStringToSend = true; 
         //      if (ZeroMode) { ZeroMode = false; UI_ClearGCodeTF = true; }
-	moveCursor();
       }
 
       if (HaveStringToSend) {
