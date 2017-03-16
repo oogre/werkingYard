@@ -1,3 +1,5 @@
+import java.awt.Robot;
+import java.awt.AWTException;
 import processing.core.*; 
 import processing.data.*; 
 import processing.event.*; 
@@ -132,9 +134,8 @@ import java.util.Properties;
   // setup
   public void setup() {
     size(800, 480);
-    //noCursor();
+    noCursor();
     smooth();
-
     sketchPath = args[0] +"/GRemote";
     dataPath = sketchPath+"/data";
     
