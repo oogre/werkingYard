@@ -1,8 +1,8 @@
 // cP5 UI events
   public void moveCursor(){
-	 try {
-     robot.mouseMove(width, height);
-    } catch (AWTException e) {}
+	 
+    robot.mouseMove(width, height);
+   
   }
 
 
