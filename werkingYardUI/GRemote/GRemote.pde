@@ -176,7 +176,9 @@ import java.util.Properties;
     setup_jog_buttons(220, 10);
     setup_port_led(10, 10);
     setup_port_selector(30, 10, 170, 130); 
-    robot = new Robot();
+    try{
+      robot = new Robot();
+    } catch (AWTException e) {}
   }
 
   // draw loop
