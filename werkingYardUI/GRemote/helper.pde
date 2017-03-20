@@ -148,7 +148,7 @@
     File [] files = root.listFiles();
     ArrayList<File> _files = new ArrayList<File>();
     for(int j = 0 ; j < files.length ; j ++){
-      if(files[j].getName().toLowerCase().endsWith(end_with)){
+      if((!files[j].getName().toLowerCase().startsWith(".")) && files[j].getName().toLowerCase().endsWith(end_with)){
         _files.add(files[j]);
       }    
     }
