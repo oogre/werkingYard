@@ -172,7 +172,7 @@ import java.util.Properties;
     setup_file_import();
     setup_file_list(width-10-170, 10, 170, height-20);
     setup_func_buttons(220, 215);
-    setup_console(10, 45, 200, 160);  
+    setup_console(10, 55, 200, 160);  
     setup_toggles(10, 240);
     setup_jog_controls(10, 315, 30); 
     setup_setting_controls(10, 305, 60); 
@@ -190,9 +190,9 @@ import java.util.Properties;
     if(frameCount % 30 == 0 ){
       update_file_import();
       update_file_list();
-    }
-    if(PLATEFORM != OSX && frameCount % 10 == 0 ){
-      moveCursor();
+      if(PLATEFORM != OSX){
+        moveCursor();
+      }
     }
 
     update_console();

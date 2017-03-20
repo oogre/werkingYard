@@ -68,7 +68,7 @@
       console[i] = ""; 
       ord_console[i] = "";
     }
-    ord_console[0] = "Select serial port";
+    ord_console[0] = "";
     Textfield t = cP5.addTextfield("GCODE", x1, y1+y2 - 20, x2, 20);
     t.setColorBackground(0xffffffff);
     t.setColorLabel(0xff000000);
@@ -252,8 +252,9 @@
     ports_ddl.getCaptionLabel().getFont().setSize(14);
     ports_ddl.getCaptionLabel().getFont().sharp();
     ports_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    ports_ddl.setBarHeight(28);  
-    ports_ddl.setItemHeight(28);
+    ports_ddl.setBarHeight(40);  
+    ports_ddl.setItemHeight(40);
+    
     int n_ports = Serial.list().length;
     for (i=0; i<n_ports; i++) {
       ports_ddl.addItem(Serial.list()[i], i);
