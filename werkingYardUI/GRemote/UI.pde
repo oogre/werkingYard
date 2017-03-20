@@ -291,16 +291,16 @@
   }
 
   public void update_func_buttons() {
-    if (!PortResponding && !DEBUG ) {
+    if (!PortResponding ) {
       cP5.getController("START").setVisible(false);
       cP5.getController("PAUSE/RESUME").setVisible(false);
       cP5.getController("CANCEL").setVisible(false);
       cP5.getController("IMG").setVisible(false);
       return;
     }
-    cP5.getController("START").setVisible((!SendingSequence) || DEBUG);
-    cP5.getController("CANCEL").setVisible(SendingSequence || DEBUG);
-    cP5.getController("PAUSE/RESUME").setVisible(SendingSequence || DEBUG);
+    cP5.getController("START").setVisible(true);//SendingSequence);
+    cP5.getController("CANCEL").setVisible(true);//SendingSequence);
+    cP5.getController("PAUSE/RESUME").setVisible(true);//SendingSequence);
     cP5.getController("IMG").setVisible(true);
     if (Paused) cP5.getController("PAUSE/RESUME").setLabel("RESUME");
     else cP5.getController("PAUSE/RESUME").setLabel("PAUSE");

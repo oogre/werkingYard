@@ -135,7 +135,10 @@ import java.util.Properties;
   public void setup() {
 
     size(800, 480);
-    noCursor();
+    if(PLATEFORM != OSX){
+      noCursor();  
+    }
+    
     smooth();
     sketchPath = args[0] +"/GRemote";
     dataPath = sketchPath+"/data";
@@ -187,6 +190,8 @@ import java.util.Properties;
     if(frameCount % 30 == 0 ){
       update_file_import();
       update_file_list();
+    }
+    if(PLATEFORM != OSX && frameCount % 10 == 0 ){
       moveCursor();
     }
 

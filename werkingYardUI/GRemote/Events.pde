@@ -1,8 +1,8 @@
 // cP5 UI events
   public void moveCursor(){
-	 
-    robot.mouseMove(width, height);
-   
+	  if(PLATEFORM != OSX){
+      robot.mouseMove(width, height);
+    }
   }
 
 
@@ -146,6 +146,30 @@
         //      send_file(file);
         return;
       }
+
+       // cancel (sending file) button
+      if (theEvent.getController().getName() == "CANCEL") {
+        SendingSequence = false;
+        Paused = false;
+         
+        console_println(": send sequence cancelled");
+        return;
+      }
+
+      // pause/resume (sending file) button
+      if (theEvent.getController().getName() == "PAUSE/RESUME") {
+        if (!Paused) {
+          console_println(": send sequence paused");
+          Paused = true;
+        } else {
+          console_println(": send sequence resumed");
+          Paused = false;
+          send_next_line();
+        }
+        return;
+      }
+
+      
       if (theEvent.getController().getName() == "SAVE") {
 
         String[] settingData={"Setting", 
@@ -169,27 +193,7 @@
         init_sequence();
         return;
       }
-      // cancel (sending file) button
-      if (theEvent.getController().getName() == "CANCEL") {
-        SendingSequence = false;
-        Paused = false;
-         
-        console_println(": send sequence cancelled");
-        return;
-      }
-
-      // pause/resume (sending file) button
-      if (theEvent.getController().getName() == "PAUSE/RESUME") {
-        if (!Paused) {
-          console_println(": send sequence paused");
-          Paused = true;
-        } else {
-          console_println(": send sequence resumed");
-          Paused = false;
-          send_next_line();
-        }
-        return;
-      }
+     
 
       // jog control toggles
       if (theEvent.getController().getName() == "fractional_jog") {
