@@ -87,7 +87,7 @@ import java.util.Properties;
 
   int i;
   float f;
-
+  Robot robot;
   // State flags
   boolean PortWasReset = false;
   boolean PortResponding = false;
@@ -133,6 +133,7 @@ import java.util.Properties;
 
   // setup
   public void setup() {
+
     size(800, 480);
     noCursor();
     smooth();
@@ -174,7 +175,8 @@ import java.util.Properties;
     setup_setting_controls(10, 305, 60); 
     setup_jog_buttons(220, 10);
     setup_port_led(10, 10);
-    setup_port_selector(30, 10, 170, 130);    
+    setup_port_selector(30, 10, 170, 130); 
+    robot = new Robot();
   }
 
   // draw loop
@@ -183,6 +185,7 @@ import java.util.Properties;
     if(frameCount % 30 == 0 ){
       update_file_import();
       update_file_list();
+      moveCursor();
     }
 
     update_console();
