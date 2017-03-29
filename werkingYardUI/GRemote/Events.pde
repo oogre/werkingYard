@@ -47,7 +47,33 @@
       return;
     }
 
-
+    for (int i=0; i<jog_dec_name.length; i++) {
+      if(theEvent.getName().equals("Z "+jog_dec_name[i])){
+        moveCursor();
+        jog[idx.Z] = intCoord(jog_dec_value[(int)theEvent.getValue()]);
+        //      println(jog[idx.Z]);
+        // store current jog dropdown values - workaround to enable inc/dec of jog values with keyboard shortcut (dropdownlist doesn't seem to have .setValue)
+        jog_ddl_idx[idx.Z] = (int)theEvent.getValue(); 
+        return;
+      }
+      if(theEvent.getName().equals("Y "+jog_dec_name[i])){
+        moveCursor();
+        jog[idx.Y] = intCoord(jog_dec_value[(int)theEvent.getValue()]);
+        //      println(jog[idx.Y]);
+        // store current jog dropdown values - workaround to enable inc/dec of jog values with keyboard shortcut (dropdownlist doesn't seem to have .setValue)
+        jog_ddl_idx[idx.Y] = (int)theEvent.getValue(); 
+        return;
+      }
+      if(theEvent.getName().equals("X "+jog_dec_name[i])){
+        moveCursor();
+        jog[idx.X] = intCoord(jog_dec_value[(int)theEvent.getValue()]);
+        //      println(jog[idx.X]);
+        // store current jog dropdown values - workaround to enable inc/dec of jog values with keyboard shortcut (dropdownlist doesn't seem to have .setValue)
+        jog_ddl_idx[idx.X] = (int)theEvent.getValue();
+        return;
+      }
+    }
+    /*
     // jog setting selected
     if (theEvent.getName()=="JOG X") {
       moveCursor();
@@ -79,7 +105,7 @@
       jog_ddl_frac[idx.Z] = FractionalJog;
       return;
     }
-
+    */
     if (theEvent.isGroup()) { 
       moveCursor();
       
@@ -185,7 +211,7 @@
         return;
       }
      
-
+      /*
       // jog control toggles
       if (theEvent.getController().getName() == "fractional_jog") {
         if ((int)theEvent.getController().getValue() == 1)
@@ -194,6 +220,7 @@
           FractionalJog = false;
         UI_ReloadJogDDL = true;
       }
+      */
       if (theEvent.getController().getName() == "rapid_positioning") {
         if ((int)theEvent.getController().getValue() == 1)
           RapidPositioning = true;

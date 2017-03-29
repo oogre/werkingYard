@@ -13,8 +13,8 @@
   String[] jog_toggles = {"go0", "xyz_mode", "set0"/*, "mem_mode"*/  };
   String[] jog_frac_name = {"1/32", "1/16", "1/8", "1/4", "1/2", "1"};
   Float[] jog_frac_value = {0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f};
-  String[] jog_dec_name = {"0.1", "1", "10", "100"};
-  Float[] jog_dec_value = {0.1f, 1.0f, 10.0f, 100.0f};
+  String[] jog_dec_name = {"1", "10", "100"};
+  Float[] jog_dec_value = {1.0f, 10.0f, 100.0f};
   Integer[] baud_values = {9600, 19200, 38400, 57600, 115200};
   DropdownList jogX_ddl, jogY_ddl, jogZ_ddl;
   ControlGroup Jogging_grp, Homing_grp, Arcs_grp, Setting_grp;
@@ -452,83 +452,70 @@
   }  
 
   public void setup_jog_controls(int x, int y, int y_off) { 
-    /*ControlGroup g = cP5.addGroup("GROUP_JOGGING", x, y, 200);
-    //g.setLabel("JOGGING"); 
-    g.open(); 
-    Jogging_grp = g;
-    */
-    //g.setBarHeight(20);
-    //g.getCaptionLabel().getFont().setSize(10);
-    //g.getCaptionLabel().getStyle().setMarginTop(5);
     
-   // x = 0;
-   // y = y_off;
-    /*
-  cP5.addTextlabel("set_jog_label", "SET JOG ", x, y+4).setGroup(g);
-     
-     Toggle t = cP5.addToggle("fractional_jog", false, x+50, y, 14, 14);
-     t.setGroup(g); t.setLabel("FRAC");
-     t.captionLabel().style().marginTop = -14;
-     t.captionLabel().style().marginLeft = 18;
-     
-     t = cP5.addToggle("rapid_positioning", false, x+95, y, 14, 14);
-     t.setGroup(g); t.setLabel("RAPID");
-     t.captionLabel().style().marginTop = -14;
-     t.captionLabel().style().marginLeft = 18;
-     */
-
     cP5.addTextlabel("jog_z_label", "Z", x+135, y);
-    jogZ_ddl = cP5.addDropdownList("JOG Z", x+15+135, y, 50, y+99);
-    jogZ_ddl.close();
-    
-    jogZ_ddl.getCaptionLabel().set("1");
-    jogZ_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    jogZ_ddl.setBarHeight(40);
-    jogZ_ddl.setItemHeight(30);
+    //jogZ_ddl = cP5.addDropdownList("JOG Z", x+15+135, y, 50, y+99);
+    //jogZ_ddl.close();
+    //jogZ_ddl.getCaptionLabel().set("1");
+    //jogZ_ddl.getCaptionLabel().getStyle().setMarginTop(0);
+    //jogZ_ddl.setBarHeight(40);
+    //jogZ_ddl.setItemHeight(30);
 
     cP5.addTextlabel("jog_y_label", "Y", x+70, y);
-    jogY_ddl = cP5.addDropdownList("JOG Y", x+15+70, y, 50, y+84);
-    jogY_ddl.close();
-    jogY_ddl.getCaptionLabel().set("1");
-    jogY_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    jogY_ddl.setBarHeight(40);
-    jogY_ddl.setItemHeight(30);
+    //jogY_ddl = cP5.addDropdownList("JOG Y", x+15+70, y, 50, y+84);
+    //jogY_ddl.close();
+    //jogY_ddl.getCaptionLabel().set("1");
+    //jogY_ddl.getCaptionLabel().getStyle().setMarginTop(0);
+    //jogY_ddl.setBarHeight(40);
+    //jogY_ddl.setItemHeight(30);
 
     cP5.addTextlabel("jog_x_label", "X", x, y);
-    jogX_ddl = cP5.addDropdownList("JOG X", x+15, y, 50, y+69);
-    jogX_ddl.close();
-    jogX_ddl.getCaptionLabel().set("1");
-    jogX_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    jogX_ddl.setBarHeight(40);
-    jogX_ddl.setItemHeight(30);
-    /*
-  Numberbox nbr = cP5.addNumberbox("FEED X", 10, x+95, y+20, 50, 14); nbr.setGroup(g);
-     nbr.setLabel("");  nbr.setMin(1); nbr.setMultiplier(1);
-     nbr = cP5.addNumberbox("FEED Y", 10, x+95, y+35, 50, 14); nbr.setGroup(g);
-     nbr.setLabel("");  nbr.setMin(1); nbr.setMultiplier(1);
-     nbr = cP5.addNumberbox("FEED Z", 10, x+95, y+50, 50, 14); nbr.setGroup(g);
-     nbr.setLabel("");  nbr.setMin(1); nbr.setMultiplier(1);
-     */
-    int n = FractionalJog ? jog_frac_name.length : jog_dec_name.length;
-    for (int i=0; i<n; i++) {
-      jogX_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
-      jogY_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
-      jogZ_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
-    }
+    //jogX_ddl = cP5.addDropdownList("JOG X", x+15, y, 50, y+69);
+    //jogX_ddl.close();
+    //jogX_ddl.getCaptionLabel().set("1");
+    //jogX_ddl.getCaptionLabel().getStyle().setMarginTop(0);
+    //jogX_ddl.setBarHeight(40);
+    //jogX_ddl.setItemHeight(30);
+    
     jog_ddl_idx = new int[idx.size()];
     jog_ddl_frac = new boolean[idx.size()];
+    
+    for (int i=0; i<jog_dec_name.length; i++) {
+
+      cP5.addButton("Z "+jog_dec_name[i])
+      .setPosition(x+15+135, y+i*55)
+      .setSize(50, 50)
+      .setValue(i);
+      cP5.addButton("Y "+jog_dec_name[i])
+      .setPosition(x+15+70, y+i*55)
+      .setSize(50, 50)
+      .setValue(i);
+      cP5.addButton("X "+jog_dec_name[i])
+      .setPosition(x+15, y+i*55)
+      .setSize(50, 50)
+      .setValue(i);
+    }
     for (int i=0; i<idx.size(); i++) {
-      jog_ddl_idx[i] = 1; // index of "1" in jog_dec_value[], default
+      jog_ddl_idx[i] = 0; // index of "1" in jog_dec_value[], default
       jog_ddl_frac[i] = false;
       jog[i] = intCoord(jog_dec_value[jog_ddl_idx[i] ]);
     }
+
+    
   }
 
   public void update_jog_controls() {
-    cP5.getController("JOG Z").setVisible(PortResponding || DEBUG);
-    cP5.getController("JOG Y").setVisible(PortResponding || DEBUG);
-    cP5.getController("JOG X").setVisible(PortResponding || DEBUG);
-    
+    for (int i=0; i<jog_dec_name.length; i++) {
+      Button b = (Button)cP5.getController("Z "+jog_dec_name[i]);
+      b.setColorBackground(jog_ddl_idx[idx.Z] == i ? color(128, 10, 10) : color(80));
+      b.setVisible(PortResponding || DEBUG);
+      b = (Button)cP5.getController("Y "+jog_dec_name[i]);
+      b.setColorBackground(jog_ddl_idx[idx.Y] == i ? color(128, 10, 10) : color(80));
+      b.setVisible(PortResponding || DEBUG);
+      b = (Button)cP5.getController("X "+jog_dec_name[i]);
+      b.setColorBackground(jog_ddl_idx[idx.X] == i ? color(128, 10, 10) : color(80));
+      b.setVisible(PortResponding || DEBUG);
+    }
     cP5.getController("jog_z_label").setVisible(PortResponding || DEBUG);
     cP5.getController("jog_y_label").setVisible(PortResponding || DEBUG);
     cP5.getController("jog_x_label").setVisible(PortResponding || DEBUG);
@@ -539,23 +526,23 @@
     //if (cP5.getController("FEED X").getValue() != feed[idx.X]) cP5.getController("FEED X").setValue(feed[idx.X]);
     //if (cP5.getController("FEED Y").getValue() != feed[idx.Y]) cP5.getController("FEED Y").setValue(feed[idx.Y]);
     //if (cP5.getController("FEED Z").getValue() != feed[idx.Z]) cP5.getController("FEED Z").setValue(feed[idx.Z]);
-    if (UI_ReloadJogDDL) {
-      UI_ReloadJogDDL = false;
-      jogX_ddl.clear(); 
-      jogY_ddl.clear(); 
-      jogZ_ddl.clear();
-      int n = FractionalJog ? jog_frac_name.length : jog_dec_name.length;
-      for (int i=0; i<n; i++) {
-        jogX_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
-        jogY_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
-        jogZ_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
-      }
+    //if (UI_ReloadJogDDL) {
+    //  UI_ReloadJogDDL = false;
+    //  jogX_ddl.clear(); 
+    //  jogY_ddl.clear(); 
+    //  jogZ_ddl.clear();
+    //  int n = FractionalJog ? jog_frac_name.length : jog_dec_name.length;
+    //  for (int i=0; i<n; i++) {
+    //    jogX_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
+    //    jogY_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
+    //    jogZ_ddl.addItem(FractionalJog ? jog_frac_name[i] : jog_dec_name[i], i);
+    //  }
       //    println("jog*_ddl reloaded");
       //    println("jogX_ddl.getValue() = "+jogX_ddl.getValue());
-    }
-    jogX_ddl.getCaptionLabel().set( jog_ddl_frac[idx.X]? jog_frac_name[jog_ddl_idx[idx.X]] : jog_dec_name[jog_ddl_idx[idx.X]] );
-    jogY_ddl.getCaptionLabel().set( jog_ddl_frac[idx.Y]? jog_frac_name[jog_ddl_idx[idx.Y]] : jog_dec_name[jog_ddl_idx[idx.Y]] );
-    jogZ_ddl.getCaptionLabel().set( jog_ddl_frac[idx.Z]? jog_frac_name[jog_ddl_idx[idx.Z]] : jog_dec_name[jog_ddl_idx[idx.Z]] );  
+    //}
+    //jogX_ddl.getCaptionLabel().set( jog_ddl_frac[idx.X]? jog_frac_name[jog_ddl_idx[idx.X]] : jog_dec_name[jog_ddl_idx[idx.X]] );
+    //jogY_ddl.getCaptionLabel().set( jog_ddl_frac[idx.Y]? jog_frac_name[jog_ddl_idx[idx.Y]] : jog_dec_name[jog_ddl_idx[idx.Y]] );
+    //jogZ_ddl.getCaptionLabel().set( jog_ddl_frac[idx.Z]? jog_frac_name[jog_ddl_idx[idx.Z]] : jog_dec_name[jog_ddl_idx[idx.Z]] );  
 
     // ***********************************    
     // ***********************************  
