@@ -82,30 +82,11 @@
 
     if (theEvent.isGroup()) { 
       moveCursor();
-      if (theEvent.getGroup().getName()=="GROUP_JOGGING") {
-        if (theEvent.getGroup().isOpen()) {
-          open_group('J');
-        }
-      }
-      if (theEvent.getGroup().getName()=="GROUP_ARCS") {
-        if (theEvent.getGroup().isOpen()) {
-          open_group('A');
-        }
-      }
-      if (theEvent.getGroup().getName()=="GROUP_HOMING") {
-        if (theEvent.getGroup().isOpen()) {
-          open_group('H');
-        }
-      }
+      
       if (theEvent.getGroup().getName()=="GROUP_SETTING") {
         if (theEvent.getGroup().isOpen()) {
           open_group('S');
         }
-      }
-      // baud rate selected
-      if (theEvent.getGroup().getName()=="BAUD") { 
-        baudrate = (int)theEvent.getGroup().getValue(); 
-        println("baud="+baudrate); 
       }
       return;
     }
@@ -120,19 +101,7 @@
         s = theEvent.getController().getStringValue().toUpperCase();
         HaveStringToSend = true; // UI_ClearFocusTF = true;
       }
-
-      // absolute mode toggle
-      if (theEvent.getController().getName() == "absolute_mode") {
-        s = ((int)theEvent.getController().getValue() == 1) ? "G90" : "G91";
-        HaveStringToSend = true;
-      }
-
-      // inch mode toggle
-      if (theEvent.getController().getName() == "inch_mode") {
-        s = ((int)theEvent.getController().getValue() == 1) ? "G20" : "G21";
-        HaveStringToSend = true;
-      }
-
+      
       // send file button
       if (theEvent.getController().getName() == "START") {
         if(currentSelectedCNCFile != null && currentSelectedCNCFile.exists()){
@@ -169,6 +138,28 @@
         return;
       }
 
+      if (theEvent.getController().getName() == "REMOVE") {
+        MenuList menu = cP5.get(MenuList.class, "menu");
+        menu.removeItem(currentSelectedCNCFile.getParentFile());
+        currentSelectedCNCFile = null;
+        Button b = cP5.get(Button.class, "IMG");
+        PImage img = new PImage();
+        b.setImages(img, img, img);
+        return;
+      }
+
+      if (theEvent.getController().getName() == "POWER OFF") {
+        
+        try{
+          console_println("POWER OFF");
+          Runtime.getRuntime().exec("shutdown -h now");
+          console_println("OK");
+          System.exit(0);
+        }catch (IOException e) {
+          console_println("ERROR : POWER OFF");          
+        }
+        return;
+      }
       
       if (theEvent.getController().getName() == "SAVE") {
 
@@ -319,7 +310,25 @@
         UI_ReloadArcTF = true; 
         UI_ClearFocusTF = true;
       }
-
+      if(theEvent.getController().getName() == "set0"){
+        j[idx.X] = -jog[idx.X];
+        j[idx.Y] = -jog[idx.Y];
+        j[idx.Z] = -jog[idx.Z];
+        s = "G92 X0  Y0  Z0";
+        HaveStringToSend = true;
+        UI_ClearGCodeTF = true;
+      }
+      if(theEvent.getController().getName() == "go0"){
+        j[idx.X] = -position[idx.X];
+        j[idx.Y] = -position[idx.Y];
+        j[idx.Z] = -position[idx.Z];
+        if (j[idx.X] != 0 || j[idx.Y] != 0 || j[idx.Z] != 0) { 
+          s = jog_string(j, G_AbsoluteMode, RenderZero); 
+          HaveStringToSend = true;
+        }
+        ZeroMode = false; 
+        UI_ClearGCodeTF = true;
+      }
       // jog button events
       if (theEvent.getController().getName() == "X+") { 
         j[idx.X] = jog[idx.X];
@@ -327,25 +336,9 @@
           accumulated_jog[idx.X] += jog[idx.X]; 
           return;
         }
-        if (ZeroMode) j[idx.X] = -position[idx.X];
-        if (MemMode) 
-          if (memorySet[idx.X]) j[idx.X] = memory[idx.X] - position[idx.X];
-          else return;
-        if (ArcMode) {
-          arc_offset = ArcCCW ? -90 : 90;
-          s = arc_string(ArcCCW, arc_radius, arc_offset + (ArcCCW? arc_start : -arc_start), arc_offset + (ArcCCW? arc_end : -arc_end), G_AbsoluteMode);
-          HaveStringToSend = true;
-        } else if (j[idx.X] != 0) { 
+        if (j[idx.X] != 0) { 
           s = jog_string(j, G_AbsoluteMode, RenderZero); 
           HaveStringToSend = true;
-        }
-        if (ZeroMode) { 
-          ZeroMode = false; 
-          UI_ClearGCodeTF = true;
-        }
-        if (MemMode) { 
-          MemMode = false; 
-          UI_ClearGCodeTF = true;
         }
       }
       if (theEvent.getController().getName() == "X-") { 
@@ -354,20 +347,8 @@
           accumulated_jog[idx.X] -= jog[idx.X]; 
           return;
         }
-        if (MemMode) { 
-          memory[idx.X] = position[idx.X]; 
-          memorySet[idx.X] = true; 
-          return;
-        }
-        if (ArcMode) {
-          arc_offset = ArcCCW ? 90 : -90;
-          s = arc_string(ArcCCW, arc_radius, arc_offset + (ArcCCW? arc_start : -arc_start), arc_offset + (ArcCCW? arc_end : -arc_end), G_AbsoluteMode);
-          HaveStringToSend = true;
-        } else {
-          s = ZeroMode ? "G92 X0" : jog_string(j, G_AbsoluteMode, RenderZero);
-          HaveStringToSend = true;
-        }
-        //      if (ZeroMode) { ZeroMode = false; UI_ClearGCodeTF = true; }
+        s = jog_string(j, G_AbsoluteMode, RenderZero);
+        HaveStringToSend = true;
       }
       if (theEvent.getController().getName() == "Y+") { 
         j[idx.Y] = jog[idx.Y];
@@ -375,25 +356,9 @@
           accumulated_jog[idx.Y] += jog[idx.Y]; 
           return;
         }
-        if (ZeroMode) j[idx.Y] = -position[idx.Y];
-        if (MemMode) 
-          if (memorySet[idx.Y]) j[idx.Y] = memory[idx.Y] - position[idx.Y];
-          else return;
-        if (ArcMode) {
-          arc_offset = ArcCCW ? 0 : 180;
-          s = arc_string(ArcCCW, arc_radius, arc_offset + (ArcCCW? arc_start : -arc_start), arc_offset + (ArcCCW? arc_end : -arc_end), G_AbsoluteMode);
-          HaveStringToSend = true;
-        } else if (j[idx.Y] != 0) { 
+        if (j[idx.Y] != 0) { 
           s = jog_string(j, G_AbsoluteMode, RenderZero); 
           HaveStringToSend = true;
-        }
-        if (ZeroMode) { 
-          ZeroMode = false; 
-          UI_ClearGCodeTF = true;
-        }
-        if (MemMode) { 
-          MemMode = false; 
-          UI_ClearGCodeTF = true;
         }
       }
       if (theEvent.getController().getName() == "Y-") { 
@@ -402,20 +367,9 @@
           accumulated_jog[idx.Y] -= jog[idx.Y]; 
           return;
         }
-        if (MemMode) { 
-          memory[idx.Y] = position[idx.Y]; 
-          memorySet[idx.Y] = true; 
-          return;
-        }
-        if (ArcMode) {
-          arc_offset = ArcCCW ? -180 : 0;
-          s = arc_string(ArcCCW, arc_radius, arc_offset + (ArcCCW? arc_start : -arc_start), arc_offset + (ArcCCW? arc_end : -arc_end), G_AbsoluteMode);
-          HaveStringToSend = true;
-        } else {
-          s = ZeroMode ? "G92 Y0" : jog_string(j, G_AbsoluteMode, RenderZero);
-          HaveStringToSend = true;
-        }
-        //      if (ZeroMode) { ZeroMode = false; UI_ClearGCodeTF = true; }
+        
+        s = jog_string(j, G_AbsoluteMode, RenderZero);
+        HaveStringToSend = true;
       }
       if (theEvent.getController().getName() == "Z+") { 
         j[idx.Z] = jog[idx.Z];
@@ -423,22 +377,9 @@
           accumulated_jog[idx.Z] += jog[idx.Z]; 
           return;
         }
-        if (ZeroMode) j[idx.Z] = -position[idx.Z];
-        if (MemMode) 
-          if (memorySet[idx.Z]) j[idx.Z] = memory[idx.Z] - position[idx.Z];
-          else return;
         if (j[idx.Z] != 0) { 
           s = jog_string(j, G_AbsoluteMode, RenderZero); 
           HaveStringToSend = true;
-        }
-
-        if (ZeroMode) { 
-          ZeroMode = false; 
-          UI_ClearGCodeTF = true;
-        }
-        if (MemMode) { 
-          MemMode = false; 
-          UI_ClearGCodeTF = true;
         }
       }
       if (theEvent.getController().getName() == "Z-") { 
@@ -447,14 +388,10 @@
           accumulated_jog[idx.Z] -= jog[idx.Z]; 
           return;
         }
-        if (MemMode) { 
-          memory[idx.Z] = position[idx.Z]; 
-          memorySet[idx.Z] = true; 
-          return;
+        if (j[idx.Z] != 0) { 
+          s = jog_string(j, G_AbsoluteMode, RenderZero);
+          HaveStringToSend = true; 
         }
-        s = ZeroMode ? "G92 Z0" : jog_string(j, G_AbsoluteMode, RenderZero);
-        HaveStringToSend = true; 
-        //      if (ZeroMode) { ZeroMode = false; UI_ClearGCodeTF = true; }
       }
 
       if (HaveStringToSend) {

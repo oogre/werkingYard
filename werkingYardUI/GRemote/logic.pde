@@ -112,6 +112,9 @@
       console_println(": unable to open the file");
       return;
     }
+
+    String[] sa1 = { "G90", "G0 Z10", "G0 Z0"};
+    gcode_sequence = concat(sa1, gcode_sequence);
     // set up state and send first line
     SendingSequence = true;
     next_gcode_line = 0;

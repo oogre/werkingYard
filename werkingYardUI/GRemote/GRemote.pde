@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream; 
 import java.io.IOException; 
 import java.util.Properties;
+
 //public class GRemote extends PApplet {
 
   // GRemoteCNC - mini host interfacing with Arduino GCode Interpreter
@@ -45,6 +46,12 @@ import java.util.Properties;
 
   ControlP5 cP5;
   Serial port = null;
+  String [] portName = {
+    "/dev/tty.usbmodem",
+    "/dev/ttyACM"
+  };
+
+
   int baudrate = 115200;
   EnumXYZ idx = new EnumXYZ();
 
