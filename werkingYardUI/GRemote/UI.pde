@@ -507,13 +507,13 @@
   public void update_jog_controls() {
     for (int i=0; i<jog_dec_name.length; i++) {
       Button b = (Button)cP5.getController("Z "+jog_dec_name[i]);
-      b.setColorBackground(jog_ddl_idx[idx.Z] == i ? color(128, 10, 10) : color(80));
+      b.setColorBackground(jog_ddl_idx[idx.Z] == i ? color(255, 200) : color(80));
       b.setVisible(PortResponding || DEBUG);
       b = (Button)cP5.getController("Y "+jog_dec_name[i]);
-      b.setColorBackground(jog_ddl_idx[idx.Y] == i ? color(128, 10, 10) : color(80));
+      b.setColorBackground(jog_ddl_idx[idx.Y] == i ? color(255, 200) : color(80));
       b.setVisible(PortResponding || DEBUG);
       b = (Button)cP5.getController("X "+jog_dec_name[i]);
-      b.setColorBackground(jog_ddl_idx[idx.X] == i ? color(128, 10, 10) : color(80));
+      b.setColorBackground(jog_ddl_idx[idx.X] == i ? color(255, 200) : color(80));
       b.setVisible(PortResponding || DEBUG);
     }
     cP5.getController("jog_z_label").setVisible(PortResponding || DEBUG);
