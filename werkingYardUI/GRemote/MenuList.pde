@@ -138,6 +138,9 @@ class MenuList extends Controller<MenuList> {
       if(file.getName().equals(o.get("name"))){
         i.remove();
         deleteDirectory(file);
+        if(items.size()>0){
+          setHeight(min(items.size()*100, height-20));
+        }
         updateMenu = true;
         return;
       }
