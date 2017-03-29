@@ -10,7 +10,7 @@
   String[] console = new String[console_size];
   String[] ord_console = new String[console_size];
   String[] jog_buttons = {"X+", "X-", "Y+", "Y-", "Z+", "Z-"};
-  String[] jog_toggles = {"arc_mode", "xyz_mode", "zero_mode"/*, "mem_mode"*/  };
+  String[] jog_toggles = {"go0", "xyz_mode", "set0"/*, "mem_mode"*/  };
   String[] jog_frac_name = {"1/32", "1/16", "1/8", "1/4", "1/2", "1"};
   Float[] jog_frac_value = {0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f};
   String[] jog_dec_name = {"0.1", "1", "10", "100"};
@@ -45,7 +45,6 @@
     ArrayList<File> currentFiles = getFiles(dataPath, extention);
     ArrayList<File> currentFilesClone = new ArrayList<File>(currentFiles);
     currentFilesClone.removeAll(files);
-    
     for(File current : currentFilesClone){
       try {
         menu.addItem(makeItem(current));
@@ -55,7 +54,10 @@
         deleteDirectory(current);
       }
     }
+
     files = getFiles(dataPath, extention);
+
+    
   }
 
 
@@ -69,15 +71,22 @@
       ord_console[i] = "";
     }
     ord_console[0] = "";
-    Textfield t = cP5.addTextfield("GCODE", x1, y1+y2 - 20, x2, 20);
+    Textfield t = cP5.addTextfield("GCODE", x1, y1+y2 - 60, x2, 20);
     t.setColorBackground(0xffffffff);
     t.setColorLabel(0xff000000);
     t.setColorValue(0xff000000);
     t.setLabel("");
 
-    cP5.addTextlabel("X_POS", "", x1, y1+y2 + 10);
-    cP5.addTextlabel("Y_POS", "", (int)(x1 + x2 *0.5)-20, y1+y2 + 10);
-    cP5.addTextlabel("Z_POS", "", x1 + x2 - 30, y1+y2 + 10);
+    cP5.addTextlabel("X_POS", "", x1, y1+y2 -30);
+    cP5.addTextlabel("Y_POS", "", (int)(x1 + x2 *0.5)-20, y1+y2 -30);
+    cP5.addTextlabel("Z_POS", "", x1 + x2 - 30, y1+y2 -30);
+
+    Button b = cP5.addButton("REMOVE")
+      .setPosition(x1, y1+y2 - 15)
+      .setSize(x2, 30)
+      .setColorBackground(color(128, 10, 10));
+    b.getCaptionLabel().setSize(10);
+    b.getCaptionLabel().getStyle().setMarginLeft(0);
   }
 
   public void clear_console() {
@@ -137,6 +146,12 @@
         ((Textfield)cP5.getController("GCODE")).setText(mem_string());    
 
       cP5.getController("GCODE").setLock(XYZMode || ZeroMode || MemMode);
+
+      if(currentSelectedCNCFile != null){
+        ((Button)cP5.getController("REMOVE")).show();  
+      }else{
+        ((Button)cP5.getController("REMOVE")).hide();
+      }
     }
   }
 
@@ -169,12 +184,14 @@
       .setColorActive(color(255, 0, 0))
       .getCaptionLabel().getStyle().setMargin(-14, 0, 0, 18);
 
+    
+/*
     cP5.addToggle("absolute_mode")
       .setPosition(x, y+20)
       .setSize(14, 14)
       .setLabel("ABSOLUTE")
       .getCaptionLabel().getStyle().setMargin(-14, 0, 0, 18);
-
+*/
     //  t.setLock(true);
     /*
   t = cP5.addToggle("inch_mode",false,x+75,y+20,14,14);
@@ -190,11 +207,11 @@
     cP5.getController("sending_LED").setVisible(PortResponding || DEBUG);
     cP5.getController("paused_LED").setVisible(PortResponding || DEBUG);
     cP5.getController("waiting_LED").setVisible(PortResponding || DEBUG);
-    cP5.getController("absolute_mode").setVisible(PortResponding || DEBUG);
+    //cP5.getController("absolute_mode").setVisible(PortResponding || DEBUG);
     //cP5.getController("inch_mode").setVisible(PortResponding);
 
     // set lock
-    cP5.getController("absolute_mode").setLock(SendingSequence && !Paused);
+    //cP5.getController("absolute_mode").setLock(SendingSequence && !Paused);
     //cP5.getController("inch_mode").setLock(SendingSequence && !Paused);
 
     // set values
@@ -204,8 +221,8 @@
       cP5.getController("paused_LED").setValue((Paused? 1:0));
     if ((int)cP5.getController("waiting_LED").getValue() != (WaitingForResponse? 1:0))
       cP5.getController("waiting_LED").setValue((WaitingForResponse? 1:0));
-    if ((int)cP5.getController("absolute_mode").getValue() != (G_AbsoluteMode? 1:0))
-      cP5.getController("absolute_mode").setValue((G_AbsoluteMode? 1:0));
+    //if ((int)cP5.getController("absolute_mode").getValue() != (G_AbsoluteMode? 1:0))
+    //  cP5.getController("absolute_mode").setValue((G_AbsoluteMode? 1:0));
   }
   
 
@@ -233,35 +250,38 @@
   
   // port selection functions
   public void setup_port_selector(int x, int y, int x2, int y2) {
-    //DropdownList baud_ddl = cP5.addDropdownList("BAUD",x,y+10,80,180);
-    //   ControlGroup g = cP5.addGroup("PORT", x, y, 100).activateEvent(true);
-    DropdownList ports_ddl = cP5.addDropdownList("PORT", x, y, x2, y2);
-    //ports_ddl.setGroup(g);
-    ports_ddl.close();
-    //cP5.addScrollableList("PORT")
-    //  .setPosition(x, y)
-    // .setSize(x2, y2);
-    /*baud_ddl.captionLabel().set("115200");
-     baud_ddl.captionLabel().getFont().setSize(14);
-     baud_ddl.captionLabel().getFont().sharp();
-     baud_ddl.captionLabel().style().marginTop = 8;
-     baud_ddl.setBarHeight(28);
-     for (int i=0; i<baud_values.length; i++) baud_ddl.addItem( baud_values[i].toString(),baud_values[i]);
-     */
-    ports_ddl.getCaptionLabel().set("PORT");
-    ports_ddl.getCaptionLabel().getFont().setSize(14);
-    ports_ddl.getCaptionLabel().getFont().sharp();
-    ports_ddl.getCaptionLabel().getStyle().setMarginTop(0);
-    ports_ddl.setBarHeight(40);  
-    ports_ddl.setItemHeight(40);
-    
+    Button b = cP5.addButton("POWER OFF")
+      .setPosition(x, y)
+      .setSize(180, 30)
+      .setColorBackground(color(128, 10, 10));
+    b.getCaptionLabel().setSize(10);
+    b.getCaptionLabel().getStyle().setMarginLeft(0);
+
     int n_ports = Serial.list().length;
     for (i=0; i<n_ports; i++) {
-      ports_ddl.addItem(Serial.list()[i], i);
+      for (int j=0; j<portName.length; j++) {
+        if(Serial.list()[i].matches("(.*)"+portName[j]+"(.*)")){
+          if (port != null) port.stop();
+          try { 
+            port = new Serial(this, Serial.list()[i], baudrate);
+          }
+          catch (Exception e) {
+            console_println(": can't open selected port!");
+          }
+          clear_console();
+          PortWasReset = true;
+          PortResponding = false;
+          WaitingForResponse = false;
+          println("port open: " + Serial.list()[i]);
+          port.bufferUntil('\n');
+          port.write("\r\n");
+          return;
+        }
+      }
     }
   }
   public void update_port_selector() {
-    cP5.get(DropdownList.class, "PORT").setVisible(!SendingSequence);
+    //cP5.get(DropdownList.class, "PORT").setVisible(!SendingSequence);
     //((DropdownList)cP5.group("BAUD")).setVisible(!SendingSequence);
   }
 
@@ -314,15 +334,15 @@
 
     PVector pos = new PVector(x, y);
 
-    Toggle t = cP5.addToggle("arc_mode")
+    Button b = cP5.addButton("go0")
       .setPosition(pos.x, pos.y)
       .setSize(buttonWidth, buttonHeight);
-    t.setLabel("ARCS");
-    t.getCaptionLabel().getStyle().setMargin(-31, 0, 0, 14);
-    t.getCaptionLabel().getFont().setSize(14);
+    b.setLabel("GO ZERO");
+    b.getCaptionLabel().getStyle().setMargin(10, 0, 0, 3);
+    b.getCaptionLabel().getFont().setSize(14);
 
     pos.x += buttonmargin+buttonWidth;
-    t = cP5.addToggle("xyz_mode")
+    Toggle t = cP5.addToggle("xyz_mode")
       .setPosition(pos.x, pos.y)
       .setSize(buttonWidth, buttonHeight);
     t.setLabel("XYZ");
@@ -330,16 +350,16 @@
     t.getCaptionLabel().getFont().setSize(14);
 
     pos.x += buttonmargin+buttonWidth;
-    t = cP5.addToggle("zero_mode")
+    b = cP5.addButton("set0")
       .setPosition(pos.x, pos.y)
       .setSize(buttonWidth, buttonHeight);
-    t.setLabel("ZERO");
-    t.getCaptionLabel().getStyle().setMargin(-31, 0, 0, 14);
-    t.getCaptionLabel().getFont().setSize(14);
+    b.setLabel("SET ZERO");
+    b.getCaptionLabel().getStyle().setMargin(10, 0, 0, 3);
+    b.getCaptionLabel().getFont().setSize(14);
    
     pos = new PVector(x, y+2*(buttonmargin+buttonHeight));
 
-    Button b = cP5.addButton("X+")
+    b = cP5.addButton("X+")
       .setPosition(pos.x, pos.y)
       .setSize(buttonWidth, buttonHeight);
     b.getCaptionLabel().getStyle().setMargin(10, 0, 0, 3);
@@ -390,9 +410,9 @@
     String s;
     Boolean Visible = (PortResponding && (!SendingSequence || SendingSequence && Paused)) || DEBUG;
 
-    if ((int)cP5.getController("arc_mode").getValue() != (ArcMode? 1:0)) cP5.getController("arc_mode").setValue((ArcMode? 1:0));
+    //if ((int)cP5.getController("go0").getValue() != (ArcMode? 1:0)) cP5.getController("arc_mode").setValue((ArcMode? 1:0));
     if ((int)cP5.getController("xyz_mode").getValue() != (XYZMode? 1:0)) cP5.getController("xyz_mode").setValue((XYZMode? 1:0));
-    if ((int)cP5.getController("zero_mode").getValue() != (ZeroMode? 1:0)) cP5.getController("zero_mode").setValue((ZeroMode? 1:0));
+    //if ((int)cP5.getController("set0").getValue() != (ZeroMode? 1:0)) cP5.getController("zero_mode").setValue((ZeroMode? 1:0));
     // if ((int)cP5.getController("mem_mode").getValue() != (MemMode? 1:0)) cP5.getController("mem_mode").setValue((MemMode? 1:0));
 
     for (int i = 0; i < jog_buttons.length; i++) cP5.getController(jog_buttons[i]).setVisible(Visible);
@@ -400,34 +420,34 @@
 
     // button labels
     s = "   X+";
-    if (ZeroMode) s = "  GO X0";
-    if (MemMode) s = "  GO XM";
-    if (ArcMode) s = ArcCCW? "  R&UP":"  R&DN";
+    //if (ZeroMode) s = "  GO X0";
+    //if (MemMode) s = "  GO XM";
+    //if (ArcMode) s = ArcCCW? "  R&UP":"  R&DN";
     cP5.getController("X+").setLabel(s);
     s = "   X-";
-    if (ZeroMode) s = " SET X0";
-    if (MemMode) s = " SET XM";
-    if (ArcMode) s = ArcCCW? "  L&DN":"  L&UP";
+    //if (ZeroMode) s = " SET X0";
+    //if (MemMode) s = " SET XM";
+    //if (ArcMode) s = ArcCCW? "  L&DN":"  L&UP";
     cP5.getController("X-").setLabel(s);
 
     s = "   Y+";
-    if (ZeroMode) s = "  GO Y0";
-    if (MemMode) s = "  GO YM";
-    if (ArcMode) s = ArcCCW? "  UP&L":"  UP&R";
+    //if (ZeroMode) s = "  GO Y0";
+    //if (MemMode) s = "  GO YM";
+    //if (ArcMode) s = ArcCCW? "  UP&L":"  UP&R";
     cP5.getController("Y+").setLabel(s);
     s = "   Y-";
-    if (ZeroMode) s = " SET Y0";
-    if (MemMode) s = " SET YM";
-    if (ArcMode) s = ArcCCW? "  DN&R":"  DN&L";
+    //if (ZeroMode) s = " SET Y0";
+    //if (MemMode) s = " SET YM";
+    //if (ArcMode) s = ArcCCW? "  DN&R":"  DN&L";
     cP5.getController("Y-").setLabel(s);
 
     s = "   Z+";
-    if (ZeroMode) s = "  GO Z0";
-    if (MemMode) s = "  GO ZM";
+    //if (ZeroMode) s = "  GO Z0";
+    //if (MemMode) s = "  GO ZM";
     cP5.getController("Z+").setLabel(s);
     s = "   Z-";
-    if (ZeroMode) s = " SET Z0";
-    if (MemMode) s = " SET ZM";
+    //if (ZeroMode) s = " SET Z0";
+    //if (MemMode) s = " SET ZM";
     cP5.getController("Z-").setLabel(s);
   }  
 

@@ -12,7 +12,7 @@ public Map<String, Object> makeItem(File file) throws Exception {
     if (cncFiles.size() <= 0 || jpgFiles.size() <= 0) {
       throw new Exception(file.getName() + " DOESN'T CONTAIN '.jpg' AND/OR '.cnc' files");
     }
-
+    m.put("name", file.getName());
     m.put("headline", file.getName().substring(0, i));
     m.put("cncFile", cncFiles.get(0));
     m.put("jpgFile", loadImage(jpgFiles.get(0).getPath()));
@@ -129,5 +129,18 @@ class MenuList extends Controller<MenuList> {
   
   Map<String,Object> getItem(int theIndex) {
     return items.get(theIndex);
+  }
+  void removeItem(File file) {
+
+    Iterator<Map<String,Object>> i = items.iterator();
+    while (i.hasNext()) {
+      Map<String,Object> o = i.next();
+      if(file.getName().equals(o.get("name"))){
+        i.remove();
+        deleteDirectory(file);
+        updateMenu = true;
+        return;
+      }
+    }
   }
 }
