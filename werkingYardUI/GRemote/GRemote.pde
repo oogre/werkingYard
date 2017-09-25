@@ -177,7 +177,7 @@ import java.util.Properties;
     }
 
     setup_file_import();
-    setup_file_list(width-10-170, 10, 170, height-20);
+    setup_file_list(width-10-170, 10 + 68, 170, 100 );
     setup_func_buttons(220, 215);
     setup_console(10, 55, 200, 160);  
     setup_toggles(10, 240);
@@ -212,6 +212,10 @@ import java.util.Properties;
     update_setting_controls();
     update_textfields(); // manage textfields focus
     update_groups(); // manage groups
+
+
+    fill(255, 0, 0, 50);
+    rect(620, 78, 170, 100);
   }
 /*
   static public void main(String[] passedArgs) {

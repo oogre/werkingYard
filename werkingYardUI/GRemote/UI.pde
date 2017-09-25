@@ -22,8 +22,20 @@
   boolean[] jog_ddl_frac;
   ArrayList<File> files;
 
+  int buttonWidth = 122;
+  int buttonHeight = 60;
+  int buttonmargin = 6;
+
   public void setup_file_list(int x1, int y1, int x2, int y2) {
-    MenuList menu = new MenuList( cP5, "menu", x1, y1, x2, y2 );
+
+    Button b = cP5.addButton("PREV")
+      .setPosition(x1, y1-buttonHeight - buttonmargin)
+      .setSize(x2, buttonHeight);
+    b.setLabel("PREV");
+    b.getCaptionLabel().getStyle().setMargin(10, 0, 0, 3);
+    b.getCaptionLabel().getFont().setSize(14);
+
+   MenuList menu = new MenuList( cP5, "menu", x1, y1, x2, y2 );
 
     files = getFiles(dataPath, extention);
     for(File current : files){
@@ -35,7 +47,28 @@
         deleteDirectory(current);
       }
     }
-    menu.hide();
+   menu.hide();
+
+    b = cP5.addButton("NEXT")
+      .setPosition(x1, y1+y2 + buttonmargin)
+      .setSize(x2, buttonHeight);
+    b.setLabel("NEXT");
+    b.getCaptionLabel().getStyle().setMargin(10, 0, 0, 3);
+    b.getCaptionLabel().getFont().setSize(14);
+
+    b = cP5.addButton("REMOVE")
+      .setPosition(x1, y1+y2 + buttonmargin + buttonHeight + buttonmargin+ buttonmargin + buttonmargin*0.5)
+      .setSize(x2, 30)
+      .setColorBackground(color(128, 10, 10));
+    b.getCaptionLabel().setSize(10);
+    b.getCaptionLabel().getStyle().setMarginLeft(0);
+
+    b = cP5.addButton("REMOVE ALL")
+      .setPosition(x1, y1+y2 + buttonmargin + buttonHeight + buttonmargin+ buttonmargin + 30 + buttonmargin+ buttonmargin+ buttonmargin*0.5)
+      .setSize(x2, 30)
+      .setColorBackground(color(128, 10, 10));
+    b.getCaptionLabel().setSize(10);
+    b.getCaptionLabel().getStyle().setMarginLeft(0);
   }
 
   public void update_file_list() {
@@ -81,12 +114,6 @@
     cP5.addTextlabel("Y_POS", "", (int)(x1 + x2 *0.5)-20, y1+y2 -30);
     cP5.addTextlabel("Z_POS", "", x1 + x2 - 30, y1+y2 -30);
 
-    Button b = cP5.addButton("REMOVE")
-      .setPosition(x1, y1+y2 - 15)
-      .setSize(x2, 30)
-      .setColorBackground(color(128, 10, 10));
-    b.getCaptionLabel().setSize(10);
-    b.getCaptionLabel().getStyle().setMarginLeft(0);
   }
 
   public void clear_console() {
@@ -328,10 +355,7 @@
   }
 
   public void setup_jog_buttons(int x, int y) {  
-    int buttonWidth = 122;
-    int buttonHeight = 60;
-    int buttonmargin = 6;
-
+    
     PVector pos = new PVector(x, y);
 
     Button b = cP5.addButton("go0")

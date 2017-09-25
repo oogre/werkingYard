@@ -173,6 +173,16 @@
         b.setImages(img, img, img);
         return;
       }
+      if (theEvent.getController().getName() == "NEXT") {
+        MenuList menu = cP5.get(MenuList.class, "menu");
+        menu.next();
+        return;
+      }
+      if (theEvent.getController().getName() == "PREV") {
+        MenuList menu = cP5.get(MenuList.class, "menu");
+        menu.prev();
+        return;
+      }
 
       if (theEvent.getController().getName() == "POWER OFF") {
         

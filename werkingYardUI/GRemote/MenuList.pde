@@ -21,6 +21,7 @@ public Map<String, Object> makeItem(File file) throws Exception {
 
 class MenuList extends Controller<MenuList> {
   float pos, npos;
+  int current = 0;
   int itemHeight = 100;
   int scrollerLength = 40;
   List< Map<String, Object>> items = new ArrayList< Map<String, Object>>();
@@ -30,64 +31,38 @@ class MenuList extends Controller<MenuList> {
   MenuList(ControlP5 c, String theName, int x, int y , int theWidth, int theHeight) {
     super( c, theName, x, y, theWidth, theHeight );
     c.register( this );
-    menu = createGraphics(getWidth(), getHeight() );
-
+    menu = createGraphics(theWidth, theHeight );
+    
+    setSize(theWidth, theHeight);
     setView(new ControllerView<MenuList>() {
-
-      public void display(PGraphics pg, MenuList t ) {
-        if (updateMenu) {
-          updateMenu();
+        public void display(PGraphics pg, MenuList t ) {
+          if (updateMenu) {
+            updateMenu();
+          }
+          pg.image(menu, 0, 0);
         }
-        if (inside() ) {
-          menu.beginDraw();
-          int len = -(itemHeight * items.size()) + getHeight();
-          int ty = int(map(pos, len, 0, getHeight() - scrollerLength - 2, 2 ) );
-          menu.fill(255 );
-          menu.rect(getWidth()-4, ty, 4, scrollerLength );
-          menu.endDraw();
-        }
-        pg.image(menu, 0, 0);
       }
-    }
     );
     updateMenu();
   }
 
   /* only update the image buffer when necessary - to save some resources */
   void updateMenu() {
-    int len = -(itemHeight * items.size()) + getHeight();
-    npos = constrain(npos, len, 0);
-    pos += (npos - pos) * 0.1;
     menu.beginDraw();
     menu.noStroke();
     menu.background(64 );
     menu.textFont(cp5.getFont().getFont());
-    menu.pushMatrix();
-    menu.translate( 0, pos );
-    menu.pushMatrix();
-
-    int i0 = PApplet.max( 0, int(map(-pos, 0, itemHeight * items.size(), 0, items.size())));
-    int range = ceil((float(getHeight())/float(itemHeight))+1);
-    int i1 = PApplet.min( items.size(), i0 + range );
-
-    menu.translate(0, i0*itemHeight);
-
-    for (int i=i0;i<i1;i++) {
-      Map m = items.get(i);
+    if(items.size()>0){
+      Map m = items.get(current); 
       menu.fill(100);
       menu.rect(0, 0, getWidth(), itemHeight-1 );
       menu.fill(255);
-      //menu.textFont(f1);
+      menu.textSize(12);
       menu.text(m.get("headline").toString(), 10, 20 );
-      //menu.textFont(f2);
-      menu.textLeading(12);
-      menu.image((PImage)m.get("jpgFile"), 110, 10, 50, 50 );
-      menu.translate( 0, itemHeight );
+      menu.image((PImage)m.get("jpgFile"), 80, 10, 80, 80  );
     }
-    menu.popMatrix();
-    menu.popMatrix();
     menu.endDraw();
-    updateMenu = abs(npos-pos)>0.01 ? true:false;
+    updateMenu = false;
   }
   
   /* when detecting a click, check if the click happend to the far right, if yes, scroll to that position, 
@@ -109,13 +84,13 @@ class MenuList extends Controller<MenuList> {
   }
 
   public void onDrag() {
-    npos += getPointer().dy() * 2;
-    updateMenu = true;
+   // npos += getPointer().dy() * 2;
+   // updateMenu = true;
   } 
 
   public void onScroll(int n) {
-    npos += ( n * 4 );
-    updateMenu = true;
+    //npos += ( n * 4 );
+   // updateMenu = true;
   }
 
   void addItem(Map<String, Object> m) {
@@ -126,7 +101,21 @@ class MenuList extends Controller<MenuList> {
     updateMenu = true;
 
   }
-  
+  void next(){
+    println("NEXT");
+    current ++;
+    current %= items.size();
+    updateMenu = true;
+  }
+
+  void prev(){
+    println("PREV");
+    current --;
+    if(current < 0){
+      current = items.size() - 1;  
+    }
+    updateMenu = true;
+  }
   Map<String,Object> getItem(int theIndex) {
     return items.get(theIndex);
   }
