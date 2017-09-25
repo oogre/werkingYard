@@ -16,12 +16,14 @@
 
     if(theEvent.isFrom("menu")){
       moveCursor();
-      Map m = ((MenuList)theEvent.getController()).getItem(int(theEvent.getValue()));
-      currentSelectedCNCFile = (File)m.get("cncFile");
-      Button b = cP5.get(Button.class, "IMG");
-      PImage img = (PImage)m.get("jpgFile");
-      img.resize(b.getWidth(), 0);
-      b.setImages(img, img, img);
+      Map m = ((MenuList)theEvent.getController()).getCurrentItem();
+      if(m!= null){
+        currentSelectedCNCFile = (File)m.get("cncFile");
+        Button b = cP5.get(Button.class, "IMG");
+        PImage img = (PImage)m.get("jpgFile");
+        img.resize(b.getWidth(), 0);
+        b.setImages(img, img, img);
+      }
       return ;
     }
 
@@ -166,13 +168,24 @@
 
       if (theEvent.getController().getName() == "REMOVE") {
         MenuList menu = cP5.get(MenuList.class, "menu");
-        menu.removeItem(currentSelectedCNCFile.getParentFile());
+        menu.removeCurrentItem();
         currentSelectedCNCFile = null;
         Button b = cP5.get(Button.class, "IMG");
         PImage img = new PImage();
         b.setImages(img, img, img);
         return;
       }
+
+      if (theEvent.getController().getName() == "REMOVE ALL") {
+        MenuList menu = cP5.get(MenuList.class, "menu");
+        menu.removeAllItem();
+        currentSelectedCNCFile = null;
+        Button b = cP5.get(Button.class, "IMG");
+        PImage img = new PImage();
+        b.setImages(img, img, img);
+        return;
+      }
+
       if (theEvent.getController().getName() == "NEXT") {
         MenuList menu = cP5.get(MenuList.class, "menu");
         menu.next();

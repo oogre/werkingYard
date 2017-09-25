@@ -32,7 +32,7 @@ class MenuList extends Controller<MenuList> {
     super( c, theName, x, y, theWidth, theHeight );
     c.register( this );
     menu = createGraphics(theWidth, theHeight );
-    
+
     setSize(theWidth, theHeight);
     setView(new ControllerView<MenuList>() {
         public void display(PGraphics pg, MenuList t ) {
@@ -95,44 +95,51 @@ class MenuList extends Controller<MenuList> {
 
   void addItem(Map<String, Object> m) {
     items.add(m);
-    if(items.size()>0){
-      setHeight(min(items.size()*100, height-20));
-    }
     updateMenu = true;
 
   }
   void next(){
-    println("NEXT");
     current ++;
-    current %= items.size();
+    if(current >= items.size()){
+      current = 0;
+    }
     updateMenu = true;
   }
 
   void prev(){
-    println("PREV");
     current --;
     if(current < 0){
       current = items.size() - 1;  
     }
     updateMenu = true;
   }
-  Map<String,Object> getItem(int theIndex) {
-    return items.get(theIndex);
+  Map<String,Object> getCurrentItem() {
+    if(items.size()>0 && current >=0 && current < items.size()){
+     return items.get(current);
+    }
+    return null;
   }
-  void removeItem(File file) {
-
+  void removeCurrentItem() {
+    
     Iterator<Map<String,Object>> i = items.iterator();
     while (i.hasNext()) {
       Map<String,Object> o = i.next();
-      if(file.getName().equals(o.get("name"))){
+      if(getCurrentItem().get("name") == o.get("name")){
         i.remove();
-        deleteDirectory(file);
-        if(items.size()>0){
-          setHeight(min(items.size()*100, height-20));
-        }
+        deleteDirectory(((File)o.get("cncFile")).getParentFile());
         updateMenu = true;
+        next();
         return;
       }
+    }
+  }
+  void removeAllItem() {
+    Iterator<Map<String,Object>> i = items.iterator();
+    while (i.hasNext()) {
+      Map<String,Object> o = i.next();
+      i.remove();
+      deleteDirectory(((File)o.get("cncFile")).getParentFile());
+      updateMenu = true;
     }
   }
 }

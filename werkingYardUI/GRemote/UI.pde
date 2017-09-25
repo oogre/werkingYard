@@ -13,8 +13,8 @@
   String[] jog_toggles = {"go0", "xyz_mode", "set0"/*, "mem_mode"*/  };
   String[] jog_frac_name = {"1/32", "1/16", "1/8", "1/4", "1/2", "1"};
   Float[] jog_frac_value = {0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f};
-  String[] jog_dec_name = {"1", "10", "100"};
-  Float[] jog_dec_value = {1.0f, 10.0f, 100.0f};
+  String[] jog_dec_name = {"10", "100", "200"};
+  Float[] jog_dec_value = {10.0f, 100.0f, 200.0f};
   Integer[] baud_values = {9600, 19200, 38400, 57600, 115200};
   DropdownList jogX_ddl, jogY_ddl, jogZ_ddl;
   ControlGroup Jogging_grp, Homing_grp, Arcs_grp, Setting_grp;
@@ -56,19 +56,21 @@
     b.getCaptionLabel().getStyle().setMargin(10, 0, 0, 3);
     b.getCaptionLabel().getFont().setSize(14);
 
-    b = cP5.addButton("REMOVE")
+    b = cP5.addButton("REMOVE ALL")
       .setPosition(x1, y1+y2 + buttonmargin + buttonHeight + buttonmargin+ buttonmargin + buttonmargin*0.5)
       .setSize(x2, 30)
       .setColorBackground(color(128, 10, 10));
     b.getCaptionLabel().setSize(10);
     b.getCaptionLabel().getStyle().setMarginLeft(0);
 
-    b = cP5.addButton("REMOVE ALL")
+    b = cP5.addButton("REMOVE")
       .setPosition(x1, y1+y2 + buttonmargin + buttonHeight + buttonmargin+ buttonmargin + 30 + buttonmargin+ buttonmargin+ buttonmargin*0.5)
       .setSize(x2, 30)
       .setColorBackground(color(128, 10, 10));
     b.getCaptionLabel().setSize(10);
     b.getCaptionLabel().getStyle().setMarginLeft(0);
+
+   
   }
 
   public void update_file_list() {
@@ -87,10 +89,21 @@
         deleteDirectory(current);
       }
     }
-
     files = getFiles(dataPath, extention);
 
-    
+    Button b = cP5.get(Button.class, "REMOVE ALL");
+    if(menu.items.size()>0){
+      b.show();  
+    }else{
+      b.hide();
+    }
+
+    b = cP5.get(Button.class, "REMOVE");
+    if(currentSelectedCNCFile != null){
+      b.show();  
+    }else{
+      b.hide();
+    }
   }
 
 
@@ -174,11 +187,7 @@
 
       cP5.getController("GCODE").setLock(XYZMode || ZeroMode || MemMode);
 
-      if(currentSelectedCNCFile != null){
-        ((Button)cP5.getController("REMOVE")).show();  
-      }else{
-        ((Button)cP5.getController("REMOVE")).hide();
-      }
+      
     }
   }
 
@@ -339,19 +348,21 @@
   }
 
   public void update_func_buttons() {
-    if (!PortResponding ) {
+    if(PortResponding || DEBUG){
+      cP5.getController("START").setVisible(true);//SendingSequence);
+      cP5.getController("CANCEL").setVisible(true);//SendingSequence);
+      cP5.getController("PAUSE/RESUME").setVisible(true);//SendingSequence);
+      cP5.getController("IMG").setVisible(true);
+      if (Paused) cP5.getController("PAUSE/RESUME").setLabel("RESUME");
+      else cP5.getController("PAUSE/RESUME").setLabel("PAUSE");
+    }
+    else {
       cP5.getController("START").setVisible(false);
       cP5.getController("PAUSE/RESUME").setVisible(false);
       cP5.getController("CANCEL").setVisible(false);
       cP5.getController("IMG").setVisible(false);
       return;
     }
-    cP5.getController("START").setVisible(true);//SendingSequence);
-    cP5.getController("CANCEL").setVisible(true);//SendingSequence);
-    cP5.getController("PAUSE/RESUME").setVisible(true);//SendingSequence);
-    cP5.getController("IMG").setVisible(true);
-    if (Paused) cP5.getController("PAUSE/RESUME").setLabel("RESUME");
-    else cP5.getController("PAUSE/RESUME").setLabel("PAUSE");
   }
 
   public void setup_jog_buttons(int x, int y) {  
