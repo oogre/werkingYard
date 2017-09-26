@@ -146,10 +146,11 @@
 
        // cancel (sending file) button
       if (theEvent.getController().getName() == "CANCEL") {
+        console_println(": send sequence cancelled");
         SendingSequence = false;
         Paused = false;
-         
-        console_println(": send sequence cancelled");
+        cancel_file();
+        
         return;
       }
 
