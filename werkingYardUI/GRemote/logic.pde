@@ -113,7 +113,7 @@
       return;
     }
 
-    String[] sa1 = { "%", "G90", "G0 Z10", "G0 Z0"};
+    String[] sa1 = { "%", "G90", "G0 Z10", "G0 Z-100"};
     gcode_sequence = concat(sa1, gcode_sequence);
     // set up state and send first line
     SendingSequence = true;
@@ -122,7 +122,7 @@
   }
 
   public void cancel_file(){
-    String[] cancelCMD = {"G0 Z0", "M30"};
+    String[] cancelCMD = {"G0 Z-100", "M30"};
     gcode_sequence = cancelCMD;
     SendingSequence = true;
     next_gcode_line = 0;
